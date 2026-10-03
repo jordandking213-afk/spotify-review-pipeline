@@ -1,0 +1,20 @@
+# Real API keys stay local — never commit them.
+.env
+.env.*
+!.env.example
+
+# Raw dataset lives outside the repo (see README for download + checksum).
+*.csv.zip
+spotify_reviews_18months.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# macOS
+.DS_Store
+
+# Self-check reports stay outside the submitted grading folder.
+local-reference.json
+self-check.json
