@@ -67,6 +67,15 @@ def main():
     m.add_argument("--client", choices=["fake", "openai"], default="fake")
     m.add_argument("--confirm-paid", action="store_true")
     m.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
+    r = sub.add_parser("run", help="all stages on any CSV: enrich -> verify -> group -> rank -> memo (default: fake)")
+    r.add_argument("--input", type=Path, required=True)
+    r.add_argument("--run", required=True)
+    r.add_argument("--client", choices=["fake", "openai"], default="fake")
+    r.add_argument("--confirm-paid", action="store_true")
+    r.add_argument("--workers", type=int, default=config.DEFAULT_WORKERS)
+    r.add_argument("--verify-rate", type=float, default=config.VERIFY_RATE)
+    r.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
+    r.add_argument("--max-batches", type=int)
     s = sub.add_parser("smoke", help="paid connection test: one request with 5 development reviews")
     s.add_argument("--confirm-paid", action="store_true")
     args = parser.parse_args()
@@ -80,6 +89,17 @@ def main():
         summary = verifier.run()
         summary["planted_error_test"] = {k: v for k, v in verifier.planted_error_test(args.plant).items() if k != "cases"}
         print(json.dumps(summary, indent=1))
+        return
+    if args.command == "run":
+        if args.client == "openai" and not args.confirm_paid:
+            raise SystemExit("--client openai makes paid calls. Re-run with --confirm-paid to proceed.")
+        from .run import run_pipeline
+        clients = {"enrich": make_client(args.client), "verify": make_client(args.client, effort=config.VERIFY_EFFORT),
+                   "group": make_client(args.client), "memo": make_client(args.client, effort=config.MEMO_EFFORT)}
+        summary = run_pipeline(args.input, config.RUNS / args.run, clients, workers=args.workers,
+                               verify_rate=args.verify_rate, spend_cap=args.spend_cap, max_batches=args.max_batches)
+        print(json.dumps({k: summary[k] for k in ("status", "wall_clock_s", "record_counts", "spent_total_usd",
+                                                  "calls_this_invocation")}, indent=1))
         return
     if args.command == "memo":
         if args.client == "openai" and not args.confirm_paid:

@@ -1,0 +1,9 @@
+model,item,unit,usd_per_unit_size,unit_size,currency,tier,source,checked
+gpt-6-luna,ordinary_input,token,0.10,1000000,USD,standard,https://developers.openai.com/api/docs/models/gpt-6-luna,2026-10-03
+gpt-6-luna,cached_input,token,0.01,1000000,USD,standard,https://developers.openai.com/api/docs/models/gpt-6-luna,2026-10-03
+gpt-6-luna,cache_write,token,0.125,1000000,USD,standard,https://developers.openai.com/api/docs/guides/prompt-caching,2026-10-03
+gpt-6-luna,output,token,0.50,1000000,USD,standard,https://developers.openai.com/api/docs/models/gpt-6-luna,2026-10-03
+fake-model,ordinary_input,token,0.10,1000000,USD,simulated,none (fake model for rehearsal; not a real price),2026-10-03
+fake-model,cached_input,token,0.01,1000000,USD,simulated,none (fake model for rehearsal; not a real price),2026-10-03
+fake-model,cache_write,token,0.125,1000000,USD,simulated,none (fake model for rehearsal; not a real price),2026-10-03
+fake-model,output,token,0.50,1000000,USD,simulated,none (fake model for rehearsal; not a real price),2026-10-03
