@@ -8,7 +8,7 @@ them into a product recommendation in which every number traces back to saved ca
 
 **Answer:** prioritize **playback** next quarter. `playback.general` is the largest specific issue (priority score
 117,894; 35,331 complaints, mean severity 3.34). Usability has the largest area total (179,800) but is spread across
-several smaller issues. See the [decision memo](memo.md).
+several smaller issues. The issue-level decision rule was set after the full run, when Jordan's inspection of memo-v3 showed the two levels disagree; under the area-level reading of the total-severity criterion declared before the run, the priority would be usability (area severity sum 179,800 vs playback's 160,236). See the [decision memo](memo.md).
 
 **Grader entry points:** [rubric map](#rubric-map) · [results](#results-summary) · [decision memo](#decision-memo) ·
 [grading export](grading/) · [cost calculator](cost/README.md) · [golden evaluation](evals/golden/results_v1/summary.md)
@@ -97,7 +97,7 @@ flowchart LR
 
 ### Who chooses the next step, and when the run stops (Jordan, own words)
 
-The order of steps is fixed in code: ingest > enrich > verify > group > rank > memo. The model only reads the review text and picks the labels; it also re-labels a sample to verify them, names the issues, and writes the memo, but it never decides what runs next. The run stops when next request would go over the $45 cap, there are 5 failures in a row, I press Ctrl-C, the provider reports a permanent error (such as no credit), or every review is completed/quarantined, and saved progress lets it resume without re-labeling reviews already finished. The later stages only run once enrichment has finished. Between runs, I decided whether to scale up by looking at the cost/time report and the quality results after each test run (100 > 500 > 10,000)
+The order of steps is fixed in code: ingest > enrich > verify > group > rank > memo. The model only reads the review text and picks the labels; it also re-labels a sample to verify them, names the issues, and writes the memo, but it never decides what runs next. The run stops when the next request would go over the $45 cap, there are 5 failures in a row, I press Ctrl-C, the provider reports a permanent error (such as no credit), or every review is completed/quarantined, and saved progress lets it resume without re-labeling reviews already finished. The later stages only run once enrichment has finished. Between runs, I decided whether to scale up by looking at the cost/time report and the quality results after each test run (100 > 500 > 10,000).
 
 ### Why each model call is needed, and what code does instead (Jordan, own words)
 
@@ -127,7 +127,7 @@ I used the model only when it requires reading and understanding messy human lan
 
 ### Error analysis (Jordan, own words)
 
-Intent was most reliable (92%) because there are obvious signals and few intents with a clear order to check. Severity was weakest (68% in v1, 76% in v2); the model tended to rate problems more severely than I did, especially after my v2 revisions (it rated higher in 10 cases and lower in 2), e.g., when a sudden loud ad played and I rated a 2 and the model did 5. The largest group of topic errors came from confusing playback, usability, and access as these tend to overlap. This matters because severity drives rankings so severity errors shift things. With only 50 cases, one review can impact a score to the point of making a rough signal that is not exact accuracy.
+Intent was most reliable (92%) because there are obvious signals and few intents with a clear order to check. Severity was weakest (68% in v1, 76% in v2); the model tended to rate problems more severely than I did, especially after my v2 revisions (it rated higher in 10 cases and lower in 2), e.g., when a sudden loud ad played and I rated a 2 and the model did 5. The largest group of topic errors came from confusing playback, usability, and access as these tend to overlap. This matters because severity drives rankings so severity errors shift things. With only 50 cases, one review shifts a score by 2 percentage points, so these numbers are a rough signal, not an exact accuracy.
 
 ---
 
@@ -208,7 +208,7 @@ nonempty reviews that stayed quarantined (see the failed case below). Coverage p
 
 ### My inspection of the memo's argument (Jordan, own words)
 
-I checked the memo's comparisons against its own numbers table and ranking.csv, plus the two reviews it cites, read in the original data. The recommendation isn't consistent with the rule I declared before the full run because the memo says playback has the highest severity sum instead of usability but the numbers show that the statement is not true. It is consistent with the issue-level view however as playback is the top specific issue once `other.general` is excluded. I opened reviews 98333d3d and 07aa9843 and found both are correctly labeled playback failures. However, two examples are not much evidence for a group of 35,331 complaints. One weakness is the area totals depend on how issues are grouped. Usability is spread over many issues while playback is mostly one broad issue. The size and shape of the group affects which area or issue looks biggest
+I checked the memo's comparisons against its own numbers table and ranking.csv, plus the two reviews it cites, read in the original data. The recommendation isn't consistent with the rule I declared before the full run because the memo says playback has the highest severity sum instead of usability but the numbers show that the statement is not true. It is consistent with the issue-level view however as playback is the top specific issue once `other.general` is excluded. I opened reviews 98333d3d and 07aa9843 and found both are correctly labeled playback failures. However, two examples are not much evidence for a group of 35,331 complaints. One weakness is the area totals depend on how issues are grouped. Usability is spread over many issues while playback is mostly one broad issue. The size and shape of the group affects which area or issue looks biggest.
 
 *Note on versions:* this inspection was of memo-v3, which passed every automated check but misstated which area had
 the largest total. The memo was regenerated as memo-v4: it receives the area and issue order as code-computed facts,
@@ -223,7 +223,7 @@ cites, `98fee45a` ("woooow can't even put a playlist on repeat anymore"), is lab
 
 ## One failure explained (Jordan, own words)
 
-In the first pilot, the memo was rejected 4 times. The main cause was a bug in the instructions rather than the model: we told the model not to write any numbers except reference to code-computed claims, but also gave it background text that contained dates, which are numbers. Three of the four rejections came from those dates; the fourth was the model's own miss, a recommendation that cited no claim. The check did its job by blocking a memo that broke the rules rather than publishing it. We fixed it by removing numbers from the background text, adding a check that rejects issue names containing numbers, and making the memo instructions clearer and reran the whole 100-review pilot, starting from an empty cache. What I learned is for whatever I give a model, it must follow the same rules its answer is checked against
+In the first pilot, the memo was rejected 4 times. The main cause was a bug in the instructions rather than the model: we told the model not to write any numbers except reference to code-computed claims, but also gave it background text that contained dates, which are numbers. Three of the four rejections came from those dates; the fourth was the model's own miss, a recommendation that cited no claim. The check did its job by blocking a memo that broke the rules rather than publishing it. We fixed it by removing numbers from the background text, adding a check that rejects issue names containing numbers, and making the memo instructions clearer and reran the whole 100-review pilot, starting from an empty cache. What I learned is for whatever I give a model, it must follow the same rules its answer is checked against.
 
 Evidence: [cost/attempt-1-memo-failed/NOTE.md](cost/attempt-1-memo-failed/NOTE.md).
 
