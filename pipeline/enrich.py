@@ -117,6 +117,29 @@ def call_with_backoff(client, system_prompt, message, schema, sleep):
     return None, attempts, None
 
 
+def record_attempts(store, db, client, attempts, *, run_id, role, phase, label_config, review_ids, reserved,
+                    succeeded, error, is_retry=False):
+    """Write one call-log row per attempt inside the caller's transaction; return the money committed.
+    Unknown usage (timeouts) commits the full reservation, matching Store.spent_usd()."""
+    committed = 0.0
+    for k, a in enumerate(attempts):
+        final = k == len(attempts) - 1 and a["usage"] is not None
+        usage = a["usage"] or {"input": 0, "cached_input": 0, "cache_write": 0, "output": 0, "reasoning": 0}
+        committed += cost_usd(client.model, usage) if a["usage_known"] else reserved
+        store.insert_call(db, {
+            "request_id": a["request_id"], "run_id": run_id, "role": role, "phase": phase, "model": client.model,
+            "label_config": label_config, "review_ids": review_ids,
+            "outcome": "succeeded" if final and succeeded else "failed",
+            "error": error if final else a["error"], "attempt": a["attempt"], "is_retry_of_invalid": int(is_retry),
+            "usage_known": int(a["usage_known"]), "input_tokens": usage["input"],
+            "cached_input_tokens": usage["cached_input"], "cache_write_tokens": usage["cache_write"],
+            "output_tokens": usage["output"], "reasoning_tokens": usage["reasoning"],
+            "cost_usd": cost_usd(client.model, usage) if a["usage"] else 0.0, "reserved_usd": reserved,
+            "simulated": int(getattr(client, "simulated", False)), "started_at": a["started_at"],
+            "duration_s": a["duration_s"]})
+    return committed
+
+
 def to_labels(item, text):
     segs = segments(text)
     return {"topic": item["t"], "intent": item["n"], "severity": item["s"], "sentiment": item["m"],

@@ -1,0 +1,25 @@
+{
+  "name": "group_v1",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["issues"],
+    "properties": {
+      "issues": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name", "description", "examples"],
+          "properties": {
+            "id": {"type": "string"},
+            "name": {"type": "string"},
+            "description": {"type": "string"},
+            "examples": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    }
+  }
+}

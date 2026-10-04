@@ -55,6 +55,11 @@ def main():
     v.add_argument("--rate", type=float, default=config.VERIFY_RATE)
     v.add_argument("--plant", type=int, default=10, help="planted-error test size (synthetic copy)")
     v.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
+    g = sub.add_parser("group", help="assign complaints to issues (code) and name issues (model; default fake)")
+    g.add_argument("--run", required=True)
+    g.add_argument("--client", choices=["fake", "openai"], default="fake")
+    g.add_argument("--confirm-paid", action="store_true")
+    g.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
     s = sub.add_parser("smoke", help="paid connection test: one request with 5 development reviews")
     s.add_argument("--confirm-paid", action="store_true")
     args = parser.parse_args()
@@ -68,6 +73,12 @@ def main():
         summary = verifier.run()
         summary["planted_error_test"] = {k: v for k, v in verifier.planted_error_test(args.plant).items() if k != "cases"}
         print(json.dumps(summary, indent=1))
+        return
+    if args.command == "group":
+        if args.client == "openai" and not args.confirm_paid:
+            raise SystemExit("--client openai makes paid calls. Re-run with --confirm-paid to proceed.")
+        from .group import Grouper
+        print(json.dumps(Grouper(config.RUNS / args.run, make_client(args.client), spend_cap=args.spend_cap).run(), indent=1))
         return
     if args.command == "smoke":
         if not args.confirm_paid:

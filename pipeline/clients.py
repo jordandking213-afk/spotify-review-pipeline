@@ -103,6 +103,8 @@ class FakeClient:
         if behavior == "no_credit":
             raise PermanentError("simulated 429 insufficient_quota")
 
+        if schema["name"].startswith("group"):
+            return self._group(user_message, request_id, behavior, system_prompt)
         reviews = [(int(n), [line.split("> ", 1)[1] for line in body.strip().split("\n")])
                    for n, body in _REVIEW.findall(user_message)]
         items_raw = [self._label(n, segs) for n, segs in reviews]
@@ -131,3 +133,23 @@ class FakeClient:
         usage = {"input": prompt_tokens, "cached_input": cached, "cache_write": written,
                  "output": len(text) // 4, "reasoning": 0}
         return Response(text=text, request_id=request_id, complete=complete, usage=usage)
+
+    def _group(self, message, request_id, behavior, system_prompt):
+        issues, current = {}, None
+        for line in message.splitlines():
+            if line.startswith("ISSUE "):
+                current = line.split()[1]
+                issues[current] = []
+            elif line.startswith("[") and current:
+                issues[current].append(line[1:line.index("]")])
+        items = [{"id": iid, "name": f"Fake name: {iid}"[:60], "description": "Fake description of the examples.",
+                  "examples": ex[:2]} for iid, ex in issues.items()]
+        if behavior == "bad_names" and items:
+            items[0]["description"] = "Affects 1,234 users"      # numbers are not allowed in descriptions
+            items[0]["examples"] = ["invented-id"]               # an ID outside the evidence pack
+        text = json.dumps({"issues": items})
+        if behavior == "bad_json":
+            text = text[: len(text) // 2]
+        usage = {"input": (len(system_prompt) + len(message)) // 4, "cached_input": 0, "cache_write": 0,
+                 "output": len(text) // 4, "reasoning": 0}
+        return Response(text=text, request_id=request_id, complete=True, usage=usage)

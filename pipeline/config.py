@@ -28,6 +28,13 @@ VERIFY_RATE = 0.05          # declared sample: 5% of distinct completed texts in
 VERIFY_RATE_PILOT = 0.20    # declared sample for the 100-review pilot (Jordan, 2026-10-03)
 VERIFY_SEED = "verify-v1"   # sample = reviews whose SHA-256(seed:review_id) falls below the rate; reproducible
 
+# Grouping role: code assigns issues; the model only names them from a bounded evidence pack.
+GROUP_PROMPT_FILE = PROMPTS / "group_v1.system.md"
+GROUP_SCHEMA_FILE = PROMPTS / "group_v1.schema.json"
+GROUP_CONFIG = f"{ENRICH_MODEL}|effort=none|group-v1|gschema-v1|issues-v1"
+GROUP_EXAMPLES_PER_ISSUE = 6
+GROUP_QUOTE_CHARS = 200
+
 # Bounds on every enrichment request.
 MAX_BATCH = 50              # contract limit: at most 50 reviews per request
 RETRY_BATCH = 10            # invalid items are re-sent once, in smaller requests
