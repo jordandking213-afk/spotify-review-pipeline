@@ -21,8 +21,8 @@ from collections import Counter
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-HUMAN = REPO / "evals" / "golden" / "golden_50_human_labels.csv"
-OUT = REPO / "evals" / "golden" / "results"
+HUMAN = REPO / "evals" / "golden" / "golden_50_human_labels_v1.csv"   # original labels, never edited
+OUT = REPO / "evals" / "golden" / "results_v1"
 TOPICS = ("access", "usability", "playback", "downloads", "catalog", "billing", "support", "other")
 INTENTS = ("cancellation", "complaint", "request", "praise", "unclear")
 SENTIMENT_TOLERANCE = 0.5
@@ -39,9 +39,9 @@ def alternatives(cell):
     return [x for x in cell.split(",") if x]
 
 
-def evaluate(run_dir):
+def evaluate(run_dir, human_path=HUMAN):
     preds, label_config = load_predictions(run_dir)
-    human = list(csv.DictReader(open(HUMAN, encoding="utf-8", newline="")))
+    human = list(csv.DictReader(open(human_path, encoding="utf-8", newline="")))
     cases, totals = [], Counter()
     confusion = Counter()
     nr = Counter()
@@ -95,7 +95,7 @@ def evaluate(run_dir):
                      "predicted": sum(c.get("pred_topic") == t for c in cases),
                      "strict_correct": sum(c["human_topic"] == t and c["topic_strict"] for c in cases)} for t in TOPICS}
     summary = {
-        "label_config": label_config, "cases": n, "valid_predictions": valid,
+        "label_config": label_config, "human_labels_file": Path(human_path).name, "cases": n, "valid_predictions": valid,
         "missing_or_quarantined_predictions": n - valid,
         "ambiguous_cases_marked_by_human": sum(h["ambiguous"] == "true" for h in human),
         "agreement_strict": {f: round(totals[f"{f}_strict"] / n, 4) for f in ("topic", "intent", "severity", "all_three")},
@@ -119,7 +119,8 @@ def evaluate(run_dir):
     return cases, summary
 
 
-def write(cases, summary):
+def write(cases, summary, out=OUT):
+    OUT = out
     OUT.mkdir(parents=True, exist_ok=True)
     fields = list(dict.fromkeys(k for c in cases for k in c))
     with open(OUT / "per_case.csv", "w", encoding="utf-8", newline="") as f:
@@ -129,7 +130,7 @@ def write(cases, summary):
     (OUT / "summary.json").write_text(json.dumps(summary, indent=1))
     s = summary
     md = ["# Golden-50 evaluation", "", f"Predictions: `{s['label_config']}`. Human labels: Jordan "
-          f"(`evals/golden/golden_50_human_labels.csv`). Code comparison only.", "",
+          f"(`evals/golden/{s['human_labels_file']}`). Code comparison only.", "",
           "| Measure | Strict (human primary label) | Lenient (also accepts human-marked alternatives) |",
           "|---|---|---|"]
     for f in ("topic", "intent", "severity", "all_three"):
@@ -160,14 +161,16 @@ def write(cases, summary):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--run", default="golden-50")
+    parser.add_argument("--labels", type=Path, default=HUMAN, help="human labels file (v1 original by default)")
+    parser.add_argument("--out", type=Path, default=OUT)
     args = parser.parse_args()
     run_dir = REPO / "runs" / args.run
     if not (run_dir / "state.sqlite").exists():
         sys.exit(f"No predictions in {run_dir}. Run: python3 -m pipeline enrich --input "
                  f"'../Final Assignment - Spotify Reviews Dataset/golden_50_to_label.csv' --run {args.run} "
                  f"--client openai --confirm-paid")
-    cases, summary = evaluate(run_dir)
-    write(cases, summary)
+    cases, summary = evaluate(run_dir, args.labels)
+    write(cases, summary, args.out)
     print(json.dumps({k: summary[k] for k in ("agreement_strict", "agreement_lenient", "severity_mae",
                                               "sentiment_within_0.5", "sentiment_mae")}, indent=1))
 

@@ -1,0 +1,92 @@
+{
+ "label_config": "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2",
+ "human_labels_file": "golden_50_human_labels_v1.csv",
+ "cases": 50,
+ "valid_predictions": 50,
+ "missing_or_quarantined_predictions": 0,
+ "ambiguous_cases_marked_by_human": 15,
+ "agreement_strict": {
+  "topic": 0.76,
+  "intent": 0.92,
+  "severity": 0.68,
+  "all_three": 0.54
+ },
+ "agreement_lenient": {
+  "topic": 0.8,
+  "intent": 0.92,
+  "severity": 0.7,
+  "all_three": 0.56
+ },
+ "severity_mae": 0.44,
+ "sentiment_within_0.5": 0.98,
+ "sentiment_mae": 0.14,
+ "evidence_quote_exact_substring": "50/50",
+ "evidence_quote_overlaps_human_quote": "49/50",
+ "needs_review_as_prediction": {
+  "true_positive": 6,
+  "false_positive": 5,
+  "false_negative": 7,
+  "true_negative": 32,
+  "precision": 0.5455,
+  "recall": 0.4615
+ },
+ "per_topic": {
+  "access": {
+   "human": 2,
+   "predicted": 0,
+   "strict_correct": 0
+  },
+  "usability": {
+   "human": 8,
+   "predicted": 8,
+   "strict_correct": 4
+  },
+  "playback": {
+   "human": 2,
+   "predicted": 5,
+   "strict_correct": 1
+  },
+  "downloads": {
+   "human": 1,
+   "predicted": 1,
+   "strict_correct": 1
+  },
+  "catalog": {
+   "human": 5,
+   "predicted": 6,
+   "strict_correct": 4
+  },
+  "billing": {
+   "human": 1,
+   "predicted": 2,
+   "strict_correct": 1
+  },
+  "support": {
+   "human": 1,
+   "predicted": 0,
+   "strict_correct": 0
+  },
+  "other": {
+   "human": 30,
+   "predicted": 28,
+   "strict_correct": 27
+  }
+ },
+ "topic_confusion_human_to_pred": {
+  "access->playback": 1,
+  "access->usability": 1,
+  "catalog->usability": 1,
+  "other->catalog": 2,
+  "other->usability": 1,
+  "playback->usability": 1,
+  "support->playback": 1,
+  "usability->billing": 1,
+  "usability->other": 1,
+  "usability->playback": 2
+ },
+ "notes": [
+  "Missing or quarantined predictions count as incorrect in agreement; MAE uses valid predictions only.",
+  "Fifty cases are a small diagnostic sample, not a precise population accuracy estimate.",
+  "The golden labels were completed after the enrichment prompt (enrich-v2) was frozen and did not influence any prompt, example, threshold or grouping rule."
+ ]
+}
