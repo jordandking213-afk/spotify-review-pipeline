@@ -1,8 +1,8 @@
-# 100-review cost and runtime report
+# 100-review cost and runtime report (cost_100.csv)
 
 Recomputed offline from `cost/pilot_calls.jsonl` and `rates.csv` by `python3 cost/calculator.py` (no API key, no model calls).
 
-## Measured: 100-review pilot
+## Measured: 100-review run
 
 - Input: `cost_100.csv` SHA-256 `c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e` (matches manifest); 100 IDs.
 - Records: {'completed': 100}. Unique texts: 100. Result-cache reuse in cold run: 0 records.
