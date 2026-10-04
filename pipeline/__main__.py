@@ -1,14 +1,38 @@
-"""Command-line entry point. Nothing here spends money unless --client openai is passed explicitly.
+"""Command-line entry point. Nothing here spends money unless `--client openai --confirm-paid` is passed.
 
-    python3 -m pipeline enrich --input PATH.csv --run NAME [--client fake] [--workers 1] [--max-batches N]
+    python3 -m pipeline enrich --input PATH.csv --run NAME                       # fake model, $0
+    python3 -m pipeline enrich --input PATH.csv --run NAME --client openai --confirm-paid
+    python3 -m pipeline smoke --confirm-paid      # 1 request, 5 development reviews (~$0.001)
 """
 
 import argparse
+import csv
 import json
 from pathlib import Path
 
 from . import config
 from .clients import FakeClient
+
+DATASET = config.REPO.parent / "Final Assignment - Spotify Reviews Dataset"
+
+
+def make_client(name, behaviors=""):
+    if name == "openai":
+        from .openai_client import OpenAIClient
+        return OpenAIClient()
+    return FakeClient(behaviors=[b for b in behaviors.split(",") if b])
+
+
+def write_smoke_input(path, n=5):
+    """The last n rows of analysis_10000.csv: development data, outside the 100/500 pilot files and the golden 50."""
+    with open(DATASET / "analysis_10000.csv", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f, strict=True)
+        rows, fields = list(reader)[-n:], reader.fieldnames
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def main():
@@ -18,21 +42,30 @@ def main():
     p.add_argument("--input", type=Path, required=True, help="any CSV with the six source columns")
     p.add_argument("--run", required=True, help="run directory name under runs/")
     p.add_argument("--client", choices=["fake", "openai"], default="fake")
+    p.add_argument("--confirm-paid", action="store_true", help="required with --client openai")
     p.add_argument("--workers", type=int, default=config.DEFAULT_WORKERS)
     p.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
     p.add_argument("--max-batches", type=int, help="stop after this many requests (interruption demo)")
     p.add_argument("--time-cap-s", type=float)
     p.add_argument("--fake-behaviors", default="", help="comma list for the fake client, e.g. drop_one,timeout")
+    s = sub.add_parser("smoke", help="paid connection test: one request with 5 development reviews")
+    s.add_argument("--confirm-paid", action="store_true")
     args = parser.parse_args()
 
-    if args.command == "enrich":
-        if args.client == "openai":
-            raise SystemExit("The OpenAI client is not built yet; it comes after the fake-model tests are approved.")
-        from .enrich import Enricher
-        client = FakeClient(behaviors=[b for b in args.fake_behaviors.split(",") if b])
-        summary = Enricher(args.input, config.RUNS / args.run, client, workers=args.workers,
-                           spend_cap=args.spend_cap, max_batches=args.max_batches, time_cap_s=args.time_cap_s).run()
-        print(json.dumps(summary, indent=1))
+    from .enrich import Enricher
+    if args.command == "smoke":
+        if not args.confirm_paid:
+            raise SystemExit("The smoke test makes one paid call (~$0.001). Re-run with --confirm-paid.")
+        run_dir = config.RUNS / "smoke"
+        write_smoke_input(run_dir / "input.csv")
+        summary = Enricher(run_dir / "input.csv", run_dir, make_client("openai"), spend_cap=0.05).run()
+    else:
+        if args.client == "openai" and not args.confirm_paid:
+            raise SystemExit("--client openai makes paid calls. Re-run with --confirm-paid to proceed.")
+        summary = Enricher(args.input, config.RUNS / args.run, make_client(args.client, args.fake_behaviors),
+                           workers=args.workers, spend_cap=args.spend_cap, max_batches=args.max_batches,
+                           time_cap_s=args.time_cap_s).run()
+    print(json.dumps(summary, indent=1))
 
 
 if __name__ == "__main__":

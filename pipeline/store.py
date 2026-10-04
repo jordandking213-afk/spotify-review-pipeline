@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS calls (
     usage_known INTEGER NOT NULL,
     input_tokens INTEGER NOT NULL,
     cached_input_tokens INTEGER NOT NULL,
+    cache_write_tokens INTEGER NOT NULL,
     output_tokens INTEGER NOT NULL,
     reasoning_tokens INTEGER NOT NULL,
     cost_usd REAL NOT NULL,
@@ -110,10 +111,10 @@ class Store:
     def insert_call(self, conn, call):
         conn.execute(
             "INSERT INTO calls (request_id, run_id, role, phase, model, label_config, review_ids, outcome, error, attempt, "
-            "is_retry_of_invalid, usage_known, input_tokens, cached_input_tokens, output_tokens, reasoning_tokens, "
+            "is_retry_of_invalid, usage_known, input_tokens, cached_input_tokens, cache_write_tokens, output_tokens, reasoning_tokens, "
             "cost_usd, reserved_usd, simulated, started_at, duration_s) VALUES "
             "(:request_id, :run_id, :role, :phase, :model, :label_config, :review_ids, :outcome, :error, :attempt, "
-            ":is_retry_of_invalid, :usage_known, :input_tokens, :cached_input_tokens, :output_tokens, :reasoning_tokens, "
+            ":is_retry_of_invalid, :usage_known, :input_tokens, :cached_input_tokens, :cache_write_tokens, :output_tokens, :reasoning_tokens, "
             ":cost_usd, :reserved_usd, :simulated, :started_at, :duration_s)",
             {**call, "review_ids": json.dumps(call["review_ids"])})
 

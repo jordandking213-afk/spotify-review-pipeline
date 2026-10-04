@@ -39,19 +39,21 @@ def text_key(text):
 
 
 def cost_usd(model, usage):
-    """Bill input, cached input and output as mutually exclusive items. Reasoning tokens are already inside
-    output tokens, so they are not added again."""
+    """Bill ordinary input, cache reads, cache writes and output as mutually exclusive items. `input` is the
+    provider's total, which already contains cache reads and writes; reasoning tokens are already inside
+    `output`, so they are not added again."""
     r = config.RATES[model]
-    uncached = usage["input"] - usage["cached_input"]
-    return (uncached * r["input"] + usage["cached_input"] * r["cached_input"] + usage["output"] * r["output"]) / 1e6
+    ordinary = usage["input"] - usage["cached_input"] - usage["cache_write"]
+    return (ordinary * r["input"] + usage["cached_input"] * r["cached_input"]
+            + usage["cache_write"] * r["cache_write"] + usage["output"] * r["output"]) / 1e6
 
 
 def reservation_usd(model, system_prompt, user_message):
     """Worst-case cost of one request, reserved before dispatch: generously estimated input (chars/3, no cache
-    discount) plus the full output-token cap."""
+    discount, priced as a cache write) plus the full output-token cap."""
     r = config.RATES[model]
     est_input = (len(system_prompt) + len(user_message)) / 3
-    return (est_input * r["input"] + config.MAX_OUTPUT_TOKENS * r["output"]) / 1e6
+    return (est_input * max(r["input"], r["cache_write"]) + config.MAX_OUTPUT_TOKENS * r["output"]) / 1e6
 
 
 def validate(raw_text, complete, sent):
@@ -210,7 +212,7 @@ class Enricher:
         with self.store.transaction() as db:
             for i, a in enumerate(attempts):
                 final = resp is not None and i == len(attempts) - 1
-                usage = a["usage"] or {"input": 0, "cached_input": 0, "output": 0, "reasoning": 0}
+                usage = a["usage"] or {"input": 0, "cached_input": 0, "cache_write": 0, "output": 0, "reasoning": 0}
                 # Same rule as Store.spent_usd(): unknown usage (timeouts) counts its full reservation.
                 self.spent += cost_usd(self.client.model, usage) if a["usage_known"] else reserved
                 self.store.insert_call(db, {
@@ -221,7 +223,8 @@ class Enricher:
                     "outcome": "succeeded" if final and valid else "failed",
                     "error": error if final else a["error"], "attempt": a["attempt"], "is_retry_of_invalid": int(is_retry),
                     "usage_known": int(a["usage_known"]), "input_tokens": usage["input"],
-                    "cached_input_tokens": usage["cached_input"], "output_tokens": usage["output"],
+                    "cached_input_tokens": usage["cached_input"], "cache_write_tokens": usage["cache_write"],
+                    "output_tokens": usage["output"],
                     "reasoning_tokens": usage["reasoning"],
                     "cost_usd": cost_usd(self.client.model, usage) if a["usage"] else 0.0,
                     "reserved_usd": reserved, "simulated": int(getattr(self.client, "simulated", False)),

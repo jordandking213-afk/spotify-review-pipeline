@@ -27,12 +27,15 @@ STOP_AFTER_CONSECUTIVE_FAILURES = 5
 SPEND_CAP_USD = 45.00
 DEFAULT_WORKERS = 1
 
-# Prices in USD per 1M tokens, standard tier. Source: https://developers.openai.com/api/docs/models/gpt-6-luna
-# (checked 2026-10-03). Input, cached input and output are mutually exclusive billing items.
+# Prices in USD per 1M tokens, standard tier, checked 2026-10-03:
+#   https://developers.openai.com/api/docs/models/gpt-6-luna (input, cached input, output)
+#   https://developers.openai.com/api/docs/guides/prompt-caching (cache writes = 1.25x uncached input)
+# Ordinary input, cache reads, cache writes and output are mutually exclusive billing items.
 RATES = {
-    "gpt-6-luna": {"input": 0.10, "cached_input": 0.01, "output": 0.50, "checked": "2026-10-03"},
-    "fake-model": {"input": 0.10, "cached_input": 0.01, "output": 0.50, "checked": "simulated"},
+    "gpt-6-luna": {"input": 0.10, "cached_input": 0.01, "cache_write": 0.125, "output": 0.50, "checked": "2026-10-03"},
+    "fake-model": {"input": 0.10, "cached_input": 0.01, "cache_write": 0.125, "output": 0.50, "checked": "simulated"},
 }
+REQUEST_TIMEOUT_S = 120
 
 QUARANTINE_EMPTY = "empty_review_text"
 QUARANTINE_INVALID = "invalid_output_after_retry"

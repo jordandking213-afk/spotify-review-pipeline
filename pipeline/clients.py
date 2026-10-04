@@ -18,7 +18,7 @@ class Response:
     text: str                     # raw model output (expected: JSON)
     request_id: str
     complete: bool                # False when the provider reports truncated/incomplete output
-    usage: dict = field(default_factory=dict)  # input, cached_input, output, reasoning (tokens)
+    usage: dict = field(default_factory=dict)  # input (total), cached_input, cache_write, output, reasoning
 
 
 class TransientError(Exception):
@@ -116,6 +116,8 @@ class FakeClient:
             text, complete = text[: len(text) // 3], False
 
         prompt_tokens = (len(system_prompt) + len(user_message)) // 4
-        cached = len(system_prompt) // 4 if self.calls > 1 else 0   # simulate provider prompt caching
-        usage = {"input": prompt_tokens, "cached_input": cached, "output": len(text) // 4, "reasoning": 0}
+        system_tokens = len(system_prompt) // 4      # simulate explicit caching of the instructions only
+        cached, written = (system_tokens, 0) if self.calls > 1 else (0, system_tokens)
+        usage = {"input": prompt_tokens, "cached_input": cached, "cache_write": written,
+                 "output": len(text) // 4, "reasoning": 0}
         return Response(text=text, request_id=request_id, complete=complete, usage=usage)
