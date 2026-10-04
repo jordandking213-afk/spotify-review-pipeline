@@ -60,6 +60,8 @@ def main():
     g.add_argument("--client", choices=["fake", "openai"], default="fake")
     g.add_argument("--confirm-paid", action="store_true")
     g.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
+    k = sub.add_parser("rank", help="compute the baseline ranking and paywall sensitivity from saved outputs (no model)")
+    k.add_argument("--run", required=True)
     s = sub.add_parser("smoke", help="paid connection test: one request with 5 development reviews")
     s.add_argument("--confirm-paid", action="store_true")
     args = parser.parse_args()
@@ -73,6 +75,10 @@ def main():
         summary = verifier.run()
         summary["planted_error_test"] = {k: v for k, v in verifier.planted_error_test(args.plant).items() if k != "cases"}
         print(json.dumps(summary, indent=1))
+        return
+    if args.command == "rank":
+        from . import rank
+        print(json.dumps(rank.run(config.RUNS / args.run), indent=1))
         return
     if args.command == "group":
         if args.client == "openai" and not args.confirm_paid:

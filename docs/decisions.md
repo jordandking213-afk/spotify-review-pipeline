@@ -11,3 +11,5 @@ Design decisions about the pipeline (label decisions live in `labels/definitions
 | 2026-10-03 | Verification sample **20%** in the 100-review pilot | "20% pilot is a bit larger to give a meaningful sample" | About 20 reviews; 5% would be about 5 |
 | 2026-10-03 | Verifier reasoning effort **none** | "effort none to save on cost" | Same model as enrichment; independence comes from a separate rubric-only prompt that never sees the first labels |
 | 2026-10-03 | Issue rules **issues-v1** accepted (`pipeline/issues.py`): code assigns each complaint/cancellation to one `topic.facet` issue; the model only names issues | — | Jordan accepted the rules as proposed |
+| 2026-10-03 | Memo design approved: model cites code-computed claims by ID and cannot write digits itself; code rejects unknown claims, digits outside claim references, and review IDs outside the evidence pack; area totals reported as separately labeled quantities | — | Jordan approved the design as proposed |
+| 2026-10-03 | Second business ranking excluding `other.general`: **deferred** until the pilot shows that issue's size | — | Required baseline ranking is unaffected |
