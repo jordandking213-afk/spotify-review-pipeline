@@ -1,0 +1,50 @@
+{
+ "input_file": "analysis_10000.csv",
+ "input_sha256": "eaa62ca6d44d717302904a9c922e99b0b4584d174309cb45295ecbc2ba2a91b5",
+ "input_matches_manifest": true,
+ "input_ids": 10000,
+ "unique_texts": 8448,
+ "cold_cache_reuses": 1552,
+ "workers": 4,
+ "verify_rate": 0.05,
+ "empty_cache_at_start": true,
+ "run_dir": "analysis_10000-4w",
+ "pilot_issue_count": 28,
+ "simulated": false,
+ "configs": {
+  "enrich": "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2",
+  "verify": "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2",
+  "group": "gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1",
+  "memo": "gpt-6-luna|effort=none|memo-v2|mschema-v2"
+ },
+ "cold": {
+  "started_at": "2026-10-04T01:47:14.023+00:00",
+  "status": "complete",
+  "wall_clock_s": 518.47,
+  "stage_wall_clock_s": {
+   "enrich": 444.244,
+   "verify": 49.085,
+   "group": 19.231,
+   "rank": 0.106,
+   "memo": 5.795
+  },
+  "record_counts": {
+   "completed": 10000
+  }
+ },
+ "warm": {
+  "started_at": "2026-10-04T01:55:52.521+00:00",
+  "status": "complete",
+  "wall_clock_s": 0.709,
+  "stage_wall_clock_s": {
+   "enrich": 0.242,
+   "verify": 0.24,
+   "group": 0.071,
+   "rank": 0.091,
+   "memo": 0.063
+  },
+  "record_counts": {
+   "completed": 10000
+  }
+ }
+}
