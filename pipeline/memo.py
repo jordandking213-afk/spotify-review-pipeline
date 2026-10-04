@@ -92,7 +92,13 @@ def build_quantities(run_dir, store):
     for row in (by_id[i] for i in top_ids):
         add(f"{row['issue_id']}: priority score if paywall complaints were severity two",
             alt[row["issue_id"]]["priority_score"], "ranking_paywall_sev2.csv")
-    return ranking, claims, extra, sensitivity, names, business, top_ids
+    four = [a for a in AREAS if "outside" not in a and ssum[a]]
+    area_order = sorted(four, key=lambda a: (-ssum[a], a))
+    top_issue = business[0]["issue_id"] if business else ranking[0]["issue_id"]
+    top_issue_area = next(a for a, topics in AREAS.items() if top_issue.split(".")[0] in topics)
+    facts = {"area_order": area_order, "top_issue": top_issue, "top_issue_area": top_issue_area,
+             "other_general_baseline_rank": next((r["rank"] for r in ranking if r["issue_id"] == "other.general"), None)}
+    return ranking, claims, extra, sensitivity, names, business, top_ids, facts
 
 
 def evidence(store, top_ids, names):
@@ -108,7 +114,7 @@ def evidence(store, top_ids, names):
     return pack
 
 
-def render_message(ranking, claims, extra, sensitivity, pack, business=(), top_ids=()):
+def render_message(ranking, claims, extra, sensitivity, pack, business=(), top_ids=(), facts=None):
     lines = ["ISSUE-LEVEL CLAIMS (top issues of the baseline ranking, then any further top issues of the business ranking)"]
     for c in claims:
         lines.append(f"{c['claim_id']} = {c['value']}  ({c['metric']} of `{c['issue_id']}`)")
@@ -116,6 +122,14 @@ def render_message(ranking, claims, extra, sensitivity, pack, business=(), top_i
     lines += [f"{x['id']} = {x['value']}  ({x['label']})" for x in extra]
     lines.append(f"\nSENSITIVITY: top issue in baseline = `{sensitivity['top_issue_baseline']}`; top issue if named-"
                  f"feature paywall complaints were severity two = `{sensitivity['top_issue_sensitivity']}`.")
+    if facts:
+        lines.append("\nORDER FACTS (computed by code; use exactly, do not re-derive)")
+        lines.append("- The four areas by total severity (severity sum), largest first: " + ", then ".join(facts["area_order"]) + ".")
+        lines.append(f"- The area with the largest total severity is {facts['area_order'][0]}.")
+        lines.append(f"- The top specific issue (first in the business ranking) is `{facts['top_issue']}`, in the "
+                     f"{facts['top_issue_area']} area.")
+        lines.append("- `other.general` is first in the baseline ranking." if str(facts["other_general_baseline_rank"]) == "1"
+                     else "- `other.general` is not first in the baseline ranking.")
     lines.append("\nBASELINE RANKING ORDER (all issues, highest priority first): "
                  + ", ".join(f"`{r['issue_id']}`" for r in ranking))
     lines.append("\nBUSINESS RANKING ORDER (additional view: same numbers, `other.general` excluded): "
@@ -129,7 +143,7 @@ def render_message(ranking, claims, extra, sensitivity, pack, business=(), top_i
     return "\n".join(lines)
 
 
-def validate_memo(raw_text, complete, claims, extra, pack, known_issues):
+def validate_memo(raw_text, complete, claims, extra, pack, known_issues, facts=None):
     if not complete:
         return None, ["incomplete_output"]
     try:
@@ -156,6 +170,12 @@ def validate_memo(raw_text, complete, claims, extra, pack, known_issues):
             problems.append("recommendation cites no claim")
         if not _REF.search(memo["supporting_evidence"]) or not _REVIEW.search(memo["supporting_evidence"]):
             problems.append("supporting_evidence needs claim references and review citations")
+        if facts:   # Jordan's issue-level rule, checked in code (added after the memo-v3 inspection)
+            if f"`{facts['top_issue']}`" not in memo["recommendation"]:
+                problems.append(f"recommendation must name the top specific issue `{facts['top_issue']}`")
+            largest = facts["area_order"][0]
+            if largest != facts["top_issue_area"] and largest not in (memo["recommendation"] + memo["alternatives"]).lower():
+                problems.append(f"memo must state that {largest} has the largest area total")
     return (memo if not problems else None), problems
 
 
@@ -188,9 +208,10 @@ class MemoWriter:
 
     def run(self):
         run_id = datetime.now(timezone.utc).strftime("memo-%Y%m%dT%H%M%S%fZ")
-        ranking, claims, extra, sensitivity, names, business, top_ids = build_quantities(self.run_dir, self.store)
+        ranking, claims, extra, sensitivity, names, business, top_ids, facts = build_quantities(self.run_dir, self.store)
+        self.facts = facts
         pack = evidence(self.store, top_ids, names)
-        message = render_message(ranking, claims, extra, sensitivity, pack, business, top_ids)
+        message = render_message(ranking, claims, extra, sensitivity, pack, business, top_ids, facts)
         input_hash = hashlib.sha256((config.MEMO_CONFIG + self.system_prompt + message).encode("utf-8")).hexdigest()
         self.out.mkdir(parents=True, exist_ok=True)
         (self.out / "quantities.json").write_text(json.dumps(
@@ -237,7 +258,7 @@ class MemoWriter:
         for attempt_round in (1, 2):
             resp, attempts, permanent = call_with_backoff(self.client, self.system_prompt, message, self.schema, self.sleep)
             calls += len(attempts)
-            memo, problems = validate_memo(resp.text, resp.complete, claims, extra, pack, known_issues) if resp \
+            memo, problems = validate_memo(resp.text, resp.complete, claims, extra, pack, known_issues, self.facts) if resp \
                 else (None, ["transient_exhausted"])
             with self.store.transaction() as db:
                 record_attempts(self.store, db, self.client, attempts, run_id=run_id, role="memo", phase="memo",

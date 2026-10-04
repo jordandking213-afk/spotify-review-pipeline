@@ -133,5 +133,36 @@ class MemoRegressionTests(unittest.TestCase):
         self.assertTrue(any("2022" in p for p in problems), problems)
 
 
+class IssueLevelRuleTests(unittest.TestCase):
+    """memo-v3 passed every check while misstating which area was largest; memo-v4 adds order facts and these checks."""
+    claims = [{"claim_id": "C1", "issue_id": "playback.general", "metric": "priority_score", "value": "9"}]
+    pack = {"playback.general": {"examples": [{"review_id": "r1", "quote": "q"}]}}
+    facts = {"area_order": ["usability", "playback", "billing/support", "access"], "top_issue": "playback.general",
+             "top_issue_area": "playback", "other_general_baseline_rank": "1"}
+    base = {"recommendation": "Prioritize playback: `playback.general` is the top specific issue at {C1}.",
+            "supporting_evidence": "It scores {C1}, as in [review:r1] about stopping.",
+            "alternatives": "Usability has the largest area total, but it is spread across several issues.",
+            "sensitivity": "The top issue does not change in the sensitivity check.",
+            "limitations": "Self-selected reviews; cancellation intent is not churn."}
+
+    def check(self, **changes):
+        memo = {**self.base, **changes}
+        return validate_memo(json.dumps(memo), True, self.claims, [], self.pack,
+                             {"playback.general", "usability.ads"}, self.facts)
+
+    def test_accepts_memo_following_the_rule(self):
+        self.assertIsNotNone(self.check()[0])
+
+    def test_rejects_recommendation_without_top_issue(self):
+        memo, problems = self.check(recommendation="Prioritize usability, led by `usability.ads` at {C1}.")
+        self.assertIsNone(memo)
+        self.assertTrue(any("top specific issue" in p for p in problems))
+
+    def test_rejects_memo_hiding_the_largest_area(self):
+        memo, problems = self.check(alternatives="Other areas are smaller than playback overall.")
+        self.assertIsNone(memo)
+        self.assertTrue(any("largest area total" in p for p in problems))
+
+
 if __name__ == "__main__":
     unittest.main()

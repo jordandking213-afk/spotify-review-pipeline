@@ -37,9 +37,9 @@ GROUP_QUOTE_CHARS = 200
 
 # Memo role: writes from saved aggregates and a bounded evidence pack; cannot write numbers itself.
 MEMO_EFFORT = "none"
-MEMO_PROMPT_FILE = PROMPTS / "memo_v3.system.md"
-MEMO_SCHEMA_FILE = PROMPTS / "memo_v3.schema.json"
-MEMO_CONFIG = f"{ENRICH_MODEL}|effort={MEMO_EFFORT}|memo-v3|mschema-v3"   # v3: Jordan's criterion + business ranking
+MEMO_PROMPT_FILE = PROMPTS / "memo_v4.system.md"
+MEMO_SCHEMA_FILE = PROMPTS / "memo_v4.schema.json"
+MEMO_CONFIG = f"{ENRICH_MODEL}|effort={MEMO_EFFORT}|memo-v4|mschema-v4"   # v4: issue-level decision, code-computed order facts
 
 # Bounds on every enrichment request.
 MAX_BATCH = 50              # contract limit: at most 50 reviews per request

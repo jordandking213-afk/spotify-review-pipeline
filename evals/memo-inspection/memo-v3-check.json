@@ -1,0 +1,33 @@
+{
+ "input_sha256": "fd14a3a1a3f40841f3c577ac6848a5c49dce783c47d29095f8f1838c933cdcc9",
+ "memo_config": "gpt-6-luna|effort=none|memo-v3|mschema-v3",
+ "passed": true,
+ "problems": [],
+ "model_calls_this_run": 1,
+ "claims_used": [
+  "C3",
+  "C4",
+  "C5",
+  "C6",
+  "C9",
+  "C12",
+  "C15",
+  "C18"
+ ],
+ "other_quantities_used": [
+  "X2",
+  "X3",
+  "X5",
+  "X6",
+  "X8",
+  "X9",
+  "X11",
+  "X12",
+  "X21",
+  "X22",
+  "X23",
+  "X24",
+  "X25",
+  "X26"
+ ]
+}
