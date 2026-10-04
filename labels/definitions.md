@@ -1,7 +1,9 @@
-# Label definitions — DRAFT v0 (not yet approved)
+# Label definitions — DRAFT v0.2 (not yet approved)
 
-**Status:** draft v0.1. Jordan's decisions from 2026-10-03 are applied (see section 7). The 'Your reasoning' column is still open. Nothing here is final until Jordan approves it. Once approved, this file
-is versioned (`labels-v1`) and becomes part of every record's `label_config`, so later changes mean re-running.
+**Status:** draft v0.2. Jordan's decisions from 2026-10-03 (both rounds) are applied; see section 7. The 'Your reasoning'
+column is still open. Nothing here is final until Jordan approves it. Once approved, this file is frozen as `labels-v2`
+(`labels-v1` was the earlier draft used only for the 5-review connection test) and becomes part of every record's
+`label_config`, so later changes mean re-running.
 
 ## How to read this file
 
@@ -37,6 +39,9 @@ golden 50 must never be added here.
   music crashing for a paying customer is `playback`.
 - Classify the review text itself. Stars and other metadata must not substitute for reading the text.
 
+**Topic rule [DECIDED, decision 5b]:** "easy to use" / "easy to navigate" → `usability`; bare "simple" or "easy" with no
+feature named → general praise (`other`, or the first specific feature mentioned after it).
+
 ## 2. Intent — exactly one, in this precedence order [OFFICIAL]
 
 1. `cancellation` — explicitly leaving, uninstalling, cancelling, or threatening to do so
@@ -63,6 +68,13 @@ golden 50 must never be added here.
 - Missing context should trigger `needs_review`; do not invent impact.
 - Stars, angry language, or cancellation intent alone do not establish severity.
 
+**Severity rules [DECIDED]**
+- **Paywalls (decision 1b):** severity 3 when a specific feature is named as locked behind Premium; a vague
+  "forcing me to buy premium" with no feature named is severity 2.
+- **Support (decision 2):** 2 if only annoyed, 3 if a problem stays unresolved, 4 if blocked.
+- **Unwanted feature with no off switch (decision 3):** 2.
+- **Data or money loss (decision 4):** 5 only when serious data, money, or privacy harm is stated.
+
 ## 4. Other required fields
 
 | Field | Rule |
@@ -70,6 +82,7 @@ golden 50 must never be added here.
 | `sentiment` | **[DECIDED]** A number from −1 to 1 using five anchors: −1 very negative · −0.5 negative · 0 neutral or evenly mixed · 0.5 positive · 1 very positive. For evaluation, a prediction within **±0.5** of the human value counts as agreement; mean absolute error is also reported. *(The tolerance must be declared before evaluation.)* |
 | `evidence_quote` | **[OFFICIAL]** An exact substring of the original review text. Code checks it character for character. **[SUGGESTED]** For short reviews, use the whole text; for longer ones, use the clause that supports the topic. |
 | `entities` | **[DECIDED]** A list of product-feature terms that appear in the text (e.g. `ads`, `lyrics`, `shuffle`, `offline`, `login`, `premium`, `podcast`, `queue`). Code matches these against a fixed vocabulary, so nothing is invented. An empty list is allowed. |
+| `paywall_named_feature` | **[DECIDED, decision 1c]** `true` when the review complains that a *specific named* feature or control is locked behind Premium (e.g. lyrics, skipping, queue). `false` otherwise, including vague "forcing premium" complaints and paying users whose Premium isn't recognized. Not a graded field. It exists so the memo can show the ranking if paywall complaints were severity 2 instead of 3. |
 | `needs_review` | **[SUGGESTED]** `true` when the label depends on information the text doesn't give, such as a speculated cause, an unclear language, sarcasm, or two problems with the same severity in a different order. This is a prediction we evaluate, not a guarantee. |
 
 ## 5. Optional subtopics — DROPPED (decision 7)
@@ -83,18 +96,20 @@ No subtopics are used. Each review gets one of the 8 official topics only.
 These are **Claude's suggested labels**, which you need to confirm or change. "Rule applied" points to the
 official rule. **"Your reasoning" is yours to write in your own words.**
 ⚠ marks judgment calls where the official text doesn't settle the answer, so you need to decide.
+E3 was dropped (decision 9: it overlapped E2). E26–E29 were added by Jordan (decision 1d); their topic, intent and
+severity are Jordan's, and only their sentiment values are Claude's suggestion.
+`paywall_named_feature` is `true` for E8, E9 and E26, and `false` for every other example.
 
 | # | Review ID (short) | Review text (exact) | Suggested topic / intent / severity / sentiment | Rule applied | Your reasoning [YOUR WORDS] |
 |---|---|---|---|---|---|
 | E1 | `12efd15d` | "I can't login to the app, it keep saying that there's no internet connection, whereas everything else on my phone is connected to the internet." | access / complaint / 4 / −0.5 | Severity 4: "inability to log in" | |
 | E2 | `5e42046c` | "Listen to my music almost everyday,this app is great. But the bad thing is that it gives too many ads, i would have hiven it 5 stars. Apart from that this app is great" | usability / complaint / 2 / 0.5 | Mixed praise/criticism → complaint; ad interruptions → usability; annoyance → 2 | |
-| E3 | `3e8bdc92` | "Decent,just let me have a solid 4-5 songs without an ad bro, it's always every 1 or 2 song then instant ads, that's all thanks" | usability / complaint / 2 / 0 | Ad interruptions → usability | |
 | E4 | `55cc3abf` | "The latest update has caused my app to crash I cant open the app please fix." | playback / complaint / 4 / −0.5 | Crashes → playback; can't open = blocked core task | |
 | E5 | `b895eb46` | "It good but it crash to at times" | playback / complaint / 3 / 0 | Occasional crash, use remains → 3 | |
 | E6 | `3899ed22` | "Paying for premium and certain podcasts are suddenly lagging. Unacceptable" | playback / complaint / 3 / −0.5 | "Mentioning a paid plan alone does not make the topic billing" | |
 | E7 | `9f7a013a` | "Nice app but why can't the lyrics of song on my playlist load?" | catalog / complaint / 3 / 0 | Lyrics availability → catalog | |
-| E8 | `d635d6c8` | "Why are lyrics premium!? There is literally no need to keep lyrics premium I'm sorry Spotify 1 star from me. Very disappointed:(." | billing / complaint / **3** / −1 | Paywall → billing; restricted function → 3 (decision 1) | |
-| E9 | `a3605554` | "Recent update really sucks. The ability to skip a song or go to previous song has been removed from non subscribed users." | billing / complaint / **3** / −1 | "Explicitly premium-only controls go here" → billing, not usability; restricted function → 3 (decision 1) | |
+| E8 | `d635d6c8` | "Why are lyrics premium!? There is literally no need to keep lyrics premium I'm sorry Spotify 1 star from me. Very disappointed:(." | billing / complaint / **3** / −1 | Paywall → billing; a named feature (lyrics) locked behind Premium → 3 (decision 1b) | |
+| E9 | `a3605554` | "Recent update really sucks. The ability to skip a song or go to previous song has been removed from non subscribed users." | billing / complaint / **3** / −1 | "Explicitly premium-only controls go here" → billing, not usability; named controls (skip, previous) locked → 3 (decision 1b) | |
 | E10 | `16929558` | "I paid my subscription and im still getting a pause subscription screen and can't access my music...... help me" | billing / complaint / 4 / −0.5 | "A subscription failing to activate" → billing; can't play = blocked | |
 | E11 | `d7f0416d` | "Your customer service members seriously need retraining on customer service. Half an hour being ignored, each message being read and ignored. No wonder why people are turning on Spotify! Absolute waste of space of an app" | support / complaint / **2** / −1 | Support response → support. Under decision 2, the review shows only annoyance at being ignored; no unresolved problem or blocked task is stated → 2 | |
 | E12 | `2c2fefc7` | "Always great! Even the support team is amazing!" | support / praise / 1 / 1 | First *specific* praised feature; "Always great" is general | |
@@ -111,13 +126,18 @@ official rule. **"Your reasoning" is yours to write in your own words.**
 | E23 | `4aee0d75` | "Good" | other / praise / 1 / 0.5 | General praise → other | |
 | E24 | `4fa17991` | "Everytime my phone resets, Spotify ignores the SD card and my downloads disappear and I have to download everything again. It's very annoying." | downloads / complaint / 3 / −0.5 | "Disappearing downloads" → downloads; workaround (re-download) remains → 3 | |
 | E25 | `bcb0dce9` | "Good app there wasn't one song I could not find download it u won't regret it I promise" | catalog / praise / 1 / 1 | Trap: "download it" means *install the app*, not the downloads feature. First specific praise is song availability → catalog | |
+| E26 | `f66a61ed` | "Playing music from playlist in a queue is now a premium feature. What a joke." | billing / complaint / 3 (Jordan) / −0.5 (suggested) | Named feature (queue) locked behind Premium → 3 (decision 1b). Paired with E27 | |
+| E27 | `86adc9b6` | "Very bad experience ever faced by any app. They are literally forcing us to purchase Spotify premium." | billing / complaint / 2 (Jordan) / −1 (suggested) | Vague "forcing premium", no feature named → 2 (decision 1b). Paired with E26 | |
+| E28 | `f6f9c680` | "@spotifyindia worst one ever my premium account got logged out automatically which was linked with my phone number now when I try to log in using my phone number it shows check your number and try again even though my number is co[…]" | access / complaint / 4 (Jordan) / −1 (suggested) | A Premium mention doesn't make it billing; can't log in = blocked → 4 | |
+| E29 | `b06534cf` | "It keeps saying that I'm trying to use premium features, and that I should upgrade, meanwhile the exact same app clearly says I have a premium account when you click on m[…]" | billing / complaint / 3 (Jordan) / −0.5 (suggested) | Premium entitlement not recognized → billing; restricted function → 3. Not a paywall complaint, so `paywall_named_feature` = false | |
 
 ---
 
-## 7. Decision log (Jordan, 2026-10-03)
+## 7. Decision log (Jordan, 2026-10-03, two rounds)
 
-The "Jordan's reasoning" column is Jordan's own wording. Where Claude pointed out an inaccuracy against the
-official rules, Jordan chose the correction; the note column says so.
+The "Jordan's reasoning" column is Jordan's own wording: in "quotes", or in *italics* where his text itself
+contains quotation marks. Where Claude pointed out an inaccuracy against the official rules, Jordan chose the
+correction; the note column says so.
 
 | # | Decision | Jordan's reasoning | Note |
 |---|---|---|---|
@@ -131,9 +151,16 @@ official rules, Jordan chose the correction; the note column says so.
 | 8 | Entities → **code-matched vocabulary** | "Match the feature words with code to keep cost down and avoid hallucinations even if synonyms are not caught" | Word for word |
 | E18 | "Worst app ever they only care about money" → **other / complaint / 2**, not billing | — | Jordan agreed with Claude's suggested label; no reasoning text recorded |
 | E22 | E22 topic → **catalog** | "simple easy does not say what is easy, I considered it as praise in general and took the first specific feature, which is every song being available, which is catalog" | Word for word |
+| 1b | Paywall severity **refined**: 3 only when a specific feature is named | *severity 3 when a specific feature is named as locked behind Premium. Vague "forcing me to buy premium" with no feature named = severity 2.* | Round 2; word for word from Jordan's note. Also settles the connection-test case "this app only made for premium users" (no feature named → 2) |
+| 1c | Memo **sensitivity check**: the ranking if paywall complaints were severity 2 | "Please add a sensitivity check in the memo showing the ranking if these were 2." | Round 2. Implemented with a `paywall_named_feature` true/false model output instead of subtopics (Jordan: "add small paywall_named_feature true/false output instead") |
+| 1d | Add examples E26–E29 | — | Round 2; labels are Jordan's, from his note |
+| 2 | Support rule **reaffirmed**, E11 = 2 | "Keep the recorded rule E11 = 2" | Round 2. Jordan's note had proposed E11 = 3; Claude pointed out it conflicted with the note's own test, and Jordan kept the recorded rule |
+| 5b | "easy to use" / "easy to navigate" → usability; bare "simple/easy" → general praise | *"easy to use" / "easy to navigate" → usability; bare "simple/easy" → general praise.* | Round 2; word for word |
+| 7 | Subtopics **stay dropped** | — | Round 2. Jordan's note said "keep the list"; after Claude flagged the conflict, Jordan chose the `paywall_named_feature` output instead |
+| 9 | Drop E3 (overlaps E2); Jordan writes the reasoning column himself | *drop E3 (overlaps E2). I'll write my own reasoning for the rest — please don't fill in the "Your reasoning" column for me.* | Round 2; word for word |
 
 ## 8. Still open
 
 - **"Your reasoning" column** in section 6: Jordan's own words, for each example he keeps (at least one per topic,
   intent, and severity level).
-- **Final approval** of this file, which freezes it as `labels-v1`.
+- **Final approval** of this file, which freezes it as `labels-v2`.

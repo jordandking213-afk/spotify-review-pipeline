@@ -73,7 +73,7 @@ def validate(raw_text, complete, sent):
         if number not in sent:
             continue                       # unknown number: ignored, cannot be mapped to a review
         seen[number] = seen.get(number, 0) + 1
-        ok = (set(item) == {"i", "t", "n", "s", "m", "q", "f"} and item["t"] in TOPICS and item["n"] in INTENTS
+        ok = (set(item) == {"i", "t", "n", "s", "m", "q", "p", "f"} and type(item["p"]) is bool and item["t"] in TOPICS and item["n"] in INTENTS
               and type(item["s"]) is int and 1 <= item["s"] <= 5 and item["m"] in SENTIMENTS
               and type(item["q"]) is int and 1 <= item["q"] <= sent[number] and item["f"] in FLAGS)
         (valid.__setitem__(number, item) if ok else invalid.add(number))
@@ -96,7 +96,8 @@ def to_labels(item, text):
     segs = segments(text)
     return {"topic": item["t"], "intent": item["n"], "severity": item["s"], "sentiment": item["m"],
             "evidence_quote": segs[item["q"] - 1], "entities": extract(text),
-            "needs_review": item["f"] is not None, "review_flag": item["f"], "segment": item["q"]}
+            "needs_review": item["f"] is not None, "review_flag": item["f"], "segment": item["q"],
+            "paywall_named_feature": item["p"]}
 
 
 class Enricher:
@@ -106,8 +107,8 @@ class Enricher:
         self.workers, self.spend_cap, self.max_batches, self.time_cap_s = workers, spend_cap, max_batches, time_cap_s
         self.sleep, self.log = sleep, log
         self.store = Store(run_dir / "state.sqlite")
-        self.system_prompt = (config.PROMPTS / "enrich_v1.system.md").read_text(encoding="utf-8")
-        self.schema = json.loads((config.PROMPTS / "enrich_v1.schema.json").read_text(encoding="utf-8"))
+        self.system_prompt = config.PROMPT_FILE.read_text(encoding="utf-8")
+        self.schema = json.loads(config.SCHEMA_FILE.read_text(encoding="utf-8"))
         self.texts = {}
 
     # --- setup ----------------------------------------------------------------------------------------

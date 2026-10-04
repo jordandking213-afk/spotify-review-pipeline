@@ -15,7 +15,7 @@ from pipeline.clients import PermanentError, TransientError
 from pipeline.enrich import cost_usd
 from pipeline.openai_client import OpenAIClient
 
-SCHEMA = json.loads((config.PROMPTS / "enrich_v1.schema.json").read_text())
+SCHEMA = json.loads((config.SCHEMA_FILE).read_text())
 DUMMY_KEY = "test-key-not-real-0000"
 
 

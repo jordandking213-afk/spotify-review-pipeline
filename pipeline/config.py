@@ -10,9 +10,11 @@ RUNS = REPO / "runs"
 # Enrichment model and label settings (all part of label_config).
 ENRICH_MODEL = "gpt-6-luna"
 ENRICH_EFFORT = "none"
-PROMPT_VERSION = "enrich-v1"
-SCHEMA_VERSION = "schema-v1"
-LABELS_VERSION = "labels-v1"
+PROMPT_VERSION = "enrich-v2"
+SCHEMA_VERSION = "schema-v2"
+LABELS_VERSION = "labels-v2"   # v1 = earlier draft, used only by the 5-review connection test
+PROMPT_FILE = PROMPTS / "enrich_v2.system.md"
+SCHEMA_FILE = PROMPTS / "enrich_v2.schema.json"
 LABEL_CONFIG = f"{ENRICH_MODEL}|effort={ENRICH_EFFORT}|{PROMPT_VERSION}|{SCHEMA_VERSION}|{LABELS_VERSION}"
 
 # Bounds on every enrichment request.

@@ -1,0 +1,101 @@
+{
+  "name": "enrich_v2",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "r"
+    ],
+    "properties": {
+      "r": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "i",
+            "t",
+            "n",
+            "s",
+            "m",
+            "q",
+            "p",
+            "f"
+          ],
+          "properties": {
+            "i": {
+              "type": "integer"
+            },
+            "t": {
+              "type": "string",
+              "enum": [
+                "access",
+                "usability",
+                "playback",
+                "downloads",
+                "catalog",
+                "billing",
+                "support",
+                "other"
+              ]
+            },
+            "n": {
+              "type": "string",
+              "enum": [
+                "cancellation",
+                "complaint",
+                "request",
+                "praise",
+                "unclear"
+              ]
+            },
+            "s": {
+              "type": "integer",
+              "enum": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "m": {
+              "type": "number",
+              "enum": [
+                -1,
+                -0.5,
+                0,
+                0.5,
+                1
+              ]
+            },
+            "q": {
+              "type": "integer"
+            },
+            "p": {
+              "type": "boolean"
+            },
+            "f": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "speculative",
+                    "unclear_language",
+                    "sarcasm_or_irony",
+                    "missing_context",
+                    "tie_order"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

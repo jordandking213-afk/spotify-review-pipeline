@@ -79,7 +79,8 @@ class FakeClient:
             intent = "unclear"
         severity = {"cancellation": 2, "complaint": 3 if topic != "other" else 2}.get(intent, 1)
         sentiment = -0.5 if intent in ("complaint", "cancellation") else 0.5 if intent == "praise" else 0
-        item = {"i": number, "t": topic, "n": intent, "s": severity, "m": sentiment, "q": 1, "f": None}
+        paywall = topic == "billing" and bool(re.search(r"lyric|skip|queue|repeat|shuffle", text))
+        item = {"i": number, "t": topic, "n": intent, "s": severity, "m": sentiment, "q": 1, "p": paywall, "f": None}
         if ALWAYS_INVALID_MARKER.lower() in text:
             item["q"] = len(segs) + 7   # a segment number that does not exist
         return item

@@ -56,7 +56,7 @@ def main():
     if args.command == "smoke":
         if not args.confirm_paid:
             raise SystemExit("The smoke test makes one paid call (~$0.001). Re-run with --confirm-paid.")
-        run_dir = config.RUNS / "smoke"
+        run_dir = config.RUNS / f"smoke-{config.PROMPT_VERSION}"   # one folder per prompt version; v1 results stay intact
         write_smoke_input(run_dir / "input.csv")
         summary = Enricher(run_dir / "input.csv", run_dir, make_client("openai"), spend_cap=0.05).run()
     else:

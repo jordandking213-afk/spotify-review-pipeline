@@ -1,4 +1,4 @@
-# Record schema and enrichment output — DRAFT v0 (not yet approved)
+# Record schema and enrichment output — DRAFT v0.2 (schema-v2, prompt enrich-v2; not yet approved)
 
 This file says **who produces each field** (the model, or code) and **what the model is allowed to return**.
 The design goal is that the model makes only the language judgments, while code does everything that can be
@@ -18,9 +18,10 @@ done exactly, keeping output tokens (the main cost) small.
 | `sentiment` | number −1..1 | **model** | One of the five anchors: −1, −0.5, 0, 0.5, 1 |
 | `evidence_quote` | string | **model picks, code copies** | The model returns a *segment number*; code copies that segment's exact text (see §3) |
 | `entities` | list of strings | code | Matched against a fixed feature vocabulary (decision 8) |
+| `paywall_named_feature` | bool | **model** | Extra field (not graded): a specific named feature is locked behind Premium. Used for the memo's severity sensitivity check (decision 1c) |
 | `needs_review` | bool | **model** | `true` when the model returns a review reason (see §2) |
 | `review_flag` | string or null | **model** | Why it needs review; kept as the "preserved reason" the assignment asks for |
-| `label_config` | string | code | e.g. `gpt-6-luna|effort=none|enrich-v1|schema-v1|labels-v1` |
+| `label_config` | string | code | `gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2` |
 | `cache_source_id` | string | code | Only on exact-duplicate texts reusing a completed original's result |
 
 Star rating, likes, app version and timestamp are **never sent to the model** (the contract's
@@ -29,7 +30,7 @@ Star rating, likes, app version and timestamp are **never sent to the model** (t
 ## 2. What the model returns per review (compact JSON, strict schema)
 
 ```json
-{"i": 3, "t": "playback", "n": "complaint", "s": 3, "m": -0.5, "q": 1, "f": null}
+{"i": 3, "t": "playback", "n": "complaint", "s": 3, "m": -0.5, "q": 1, "p": false, "f": null}
 ```
 
 | Key | Meaning | Allowed values |
@@ -40,11 +41,12 @@ Star rating, likes, app version and timestamp are **never sent to the model** (t
 | `s` | severity | 1, 2, 3, 4, 5 |
 | `m` | sentiment | −1, −0.5, 0, 0.5, 1 |
 | `q` | evidence segment number | integer, must exist in that review |
+| `p` | paywall_named_feature | `true` / `false` |
 | `f` | review flag | `null`, or one of `speculative`, `unclear_language`, `sarcasm_or_irony`, `missing_context`, `tie_order` |
 
 **Why short keys and numbers:** output tokens cost 5× input tokens. Single-letter keys, a segment number instead
 of a copied quote, and a short request number instead of a 36-character UUID keep each review's answer to roughly
-25–35 output tokens. The full names are restored by code.
+35–40 output tokens (34 measured in the connection test, before `p` was added). The full names are restored by code.
 
 ## 3. Evidence segments (code, deterministic)
 
