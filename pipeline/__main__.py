@@ -16,10 +16,10 @@ from .clients import FakeClient
 DATASET = config.REPO.parent / "Final Assignment - Spotify Reviews Dataset"
 
 
-def make_client(name, behaviors=""):
+def make_client(name, behaviors="", effort=config.ENRICH_EFFORT):
     if name == "openai":
         from .openai_client import OpenAIClient
-        return OpenAIClient()
+        return OpenAIClient(effort=effort)
     return FakeClient(behaviors=[b for b in behaviors.split(",") if b])
 
 
@@ -62,6 +62,11 @@ def main():
     g.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
     k = sub.add_parser("rank", help="compute the baseline ranking and paywall sensitivity from saved outputs (no model)")
     k.add_argument("--run", required=True)
+    m = sub.add_parser("memo", help="write the decision memo from saved aggregates (default client: fake)")
+    m.add_argument("--run", required=True)
+    m.add_argument("--client", choices=["fake", "openai"], default="fake")
+    m.add_argument("--confirm-paid", action="store_true")
+    m.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
     s = sub.add_parser("smoke", help="paid connection test: one request with 5 development reviews")
     s.add_argument("--confirm-paid", action="store_true")
     args = parser.parse_args()
@@ -71,10 +76,17 @@ def main():
         if args.client == "openai" and not args.confirm_paid:
             raise SystemExit("--client openai makes paid calls. Re-run with --confirm-paid to proceed.")
         from .verify import Verifier
-        verifier = Verifier(config.RUNS / args.run, make_client(args.client), rate=args.rate, spend_cap=args.spend_cap)
+        verifier = Verifier(config.RUNS / args.run, make_client(args.client, effort=config.VERIFY_EFFORT), rate=args.rate, spend_cap=args.spend_cap)
         summary = verifier.run()
         summary["planted_error_test"] = {k: v for k, v in verifier.planted_error_test(args.plant).items() if k != "cases"}
         print(json.dumps(summary, indent=1))
+        return
+    if args.command == "memo":
+        if args.client == "openai" and not args.confirm_paid:
+            raise SystemExit("--client openai makes paid calls. Re-run with --confirm-paid to proceed.")
+        from .memo import MemoWriter
+        client = make_client(args.client, effort=config.MEMO_EFFORT)
+        print(json.dumps(MemoWriter(config.RUNS / args.run, client, spend_cap=args.spend_cap).run(), indent=1))
         return
     if args.command == "rank":
         from . import rank

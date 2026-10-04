@@ -103,6 +103,8 @@ class FakeClient:
         if behavior == "no_credit":
             raise PermanentError("simulated 429 insufficient_quota")
 
+        if schema["name"].startswith("memo"):
+            return self._memo(user_message, request_id, behavior, system_prompt)
         if schema["name"].startswith("group"):
             return self._group(user_message, request_id, behavior, system_prompt)
         reviews = [(int(n), [line.split("> ", 1)[1] for line in body.strip().split("\n")])
@@ -150,6 +152,27 @@ class FakeClient:
         text = json.dumps({"issues": items})
         if behavior == "bad_json":
             text = text[: len(text) // 2]
+        usage = {"input": (len(system_prompt) + len(message)) // 4, "cached_input": 0, "cache_write": 0,
+                 "output": len(text) // 4, "reasoning": 0}
+        return Response(text=text, request_id=request_id, complete=True, usage=usage)
+
+    def _memo(self, message, request_id, behavior, system_prompt):
+        claims = re.findall(r"^(C\d+) = ", message, re.MULTILINE)
+        extras = re.findall(r"^(X\d+) = ", message, re.MULTILINE)
+        reviews = re.findall(r"\[review:([^\]]+)\]", message)
+        issues = re.findall(r"^`([a-z_]+\.[a-z_]+)` —", message, re.MULTILINE)
+        memo = {
+            "recommendation": f"Prioritize the area of `{issues[0]}`, which ranks first with priority {{{claims[2]}}} "
+                              f"from {{{claims[0]}}} complaints.",
+            "supporting_evidence": f"`{issues[0]}` has mean severity {{{claims[1]}}}, as in [review:{reviews[0]}].",
+            "alternatives": f"Other areas have lower totals, for example {{{extras[0]}}} complaints in the first area listed.",
+            "sensitivity": f"Re-scoring {{{extras[-len(issues) - 1]}}} paywall reviews leaves the conclusion to be checked.",
+            "limitations": "Reviews are self-selected and historical; cancellation intent is not observed churn.",
+        }
+        if behavior == "bad_memo":
+            memo["recommendation"] += " Roughly 40% of users are affected."      # a number not from code
+            memo["supporting_evidence"] += " See [review:invented-id]."          # an ID outside the evidence
+        text = json.dumps(memo)
         usage = {"input": (len(system_prompt) + len(message)) // 4, "cached_input": 0, "cache_write": 0,
                  "output": len(text) // 4, "reasoning": 0}
         return Response(text=text, request_id=request_id, complete=True, usage=usage)

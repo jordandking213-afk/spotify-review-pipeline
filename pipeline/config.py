@@ -35,6 +35,12 @@ GROUP_CONFIG = f"{ENRICH_MODEL}|effort=none|group-v1|gschema-v1|issues-v1"
 GROUP_EXAMPLES_PER_ISSUE = 6
 GROUP_QUOTE_CHARS = 200
 
+# Memo role: writes from saved aggregates and a bounded evidence pack; cannot write numbers itself.
+MEMO_EFFORT = "none"
+MEMO_PROMPT_FILE = PROMPTS / "memo_v1.system.md"
+MEMO_SCHEMA_FILE = PROMPTS / "memo_v1.schema.json"
+MEMO_CONFIG = f"{ENRICH_MODEL}|effort={MEMO_EFFORT}|memo-v1|mschema-v1"
+
 # Bounds on every enrichment request.
 MAX_BATCH = 50              # contract limit: at most 50 reviews per request
 RETRY_BATCH = 10            # invalid items are re-sent once, in smaller requests

@@ -1,0 +1,16 @@
+{
+  "name": "memo_v1",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["recommendation", "supporting_evidence", "alternatives", "sensitivity", "limitations"],
+    "properties": {
+      "recommendation": {"type": "string"},
+      "supporting_evidence": {"type": "string"},
+      "alternatives": {"type": "string"},
+      "sensitivity": {"type": "string"},
+      "limitations": {"type": "string"}
+    }
+  }
+}
