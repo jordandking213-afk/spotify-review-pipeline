@@ -1,0 +1,6 @@
+request_id,pilot_phase,role,model,label_config,outcome,usage_known,input_tokens,cached_input_tokens,cache_write_tokens,ordinary_input_tokens,output_tokens,reasoning_tokens,duration_s,simulated
+resp_05a4fdc17e8e6c20016ac1ae69cbd887d0ac466ca326f0ae71,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3142,1762,0,1380,1742,0,8.59,0
+resp_01ebaa2610adc16b016ac1ae72371087d0b71062bac2e0da4d,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3237,1762,0,1475,1742,0,10.99,0
+resp_07d48d178ac05594016ac1ae7d199887d087195c4b41c8da10,cold,verify,gpt-6-luna,gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2,succeeded,1,1100,0,0,1100,356,0,2.659,0
+resp_07390e51f4731e9b016ac1ae7fc7fc87d0ac52ad70857a7b7f,cold,group,gpt-6-luna,gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1,succeeded,1,2416,0,0,2416,1432,0,9.828,0
+resp_079a2345904372f2016ac1ae89a6d887d0a203fee7aad740f1,cold,memo,gpt-6-luna,gpt-6-luna|effort=none|memo-v2|mschema-v2,succeeded,1,2475,0,0,2475,727,0,6.698,0

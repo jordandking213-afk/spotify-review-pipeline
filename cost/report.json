@@ -1,0 +1,308 @@
+{
+ "measured": {
+  "run": {
+   "input_file": "cost_100.csv",
+   "input_sha256": "c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e",
+   "input_matches_manifest": true,
+   "input_ids": 100,
+   "unique_texts": 100,
+   "cold_cache_reuses": 0,
+   "workers": 1,
+   "verify_rate": 0.2,
+   "empty_cache_at_start": true,
+   "run_dir": "pilot-100",
+   "pilot_issue_count": 18,
+   "simulated": false,
+   "configs": {
+    "enrich": "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2",
+    "verify": "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2",
+    "group": "gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1",
+    "memo": "gpt-6-luna|effort=none|memo-v2|mschema-v2"
+   },
+   "cold": {
+    "started_at": "2026-10-04T01:39:53.260+00:00",
+    "status": "complete",
+    "wall_clock_s": 38.832,
+    "stage_wall_clock_s": {
+     "enrich": 19.602,
+     "verify": 2.67,
+     "group": 9.839,
+     "rank": 0.006,
+     "memo": 6.711
+    },
+    "record_counts": {
+     "completed": 100
+    }
+   },
+   "warm": {
+    "started_at": "2026-10-04T01:40:32.141+00:00",
+    "status": "complete",
+    "wall_clock_s": 0.03,
+    "stage_wall_clock_s": {
+     "enrich": 0.011,
+     "verify": 0.007,
+     "group": 0.003,
+     "rank": 0.003,
+     "memo": 0.004
+    },
+    "record_counts": {
+     "completed": 100
+    }
+   }
+  },
+  "records": {
+   "completed": 100
+  },
+  "phases": {
+   "cold": {
+    "wall_clock_s": 38.832,
+    "stage_wall_clock_s": {
+     "enrich": 19.602,
+     "verify": 2.67,
+     "group": 9.839,
+     "rank": 0.006,
+     "memo": 6.711
+    },
+    "api_usd": 0.00391934,
+    "estimated_unresolved_usd": 0.0,
+    "enrich_attempts": 2,
+    "stages": {
+     "enrich": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2"
+      ],
+      "requests": 2,
+      "attempts": 2,
+      "succeeded": 2,
+      "failed": 0,
+      "retries": 0,
+      "max_batch": 50,
+      "review_ids_sent": 100,
+      "units": {
+       "ordinary_input": 2855,
+       "cached_input": 3524,
+       "cache_write": 0,
+       "output": 3484
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.00028550000000000005,
+       "cached_input": 3.524e-05,
+       "cache_write": 0.0,
+       "output": 0.0017419999999999998
+      },
+      "api_usd": 0.00206274,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 19.58
+     },
+     "group": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1"
+      ],
+      "requests": 1,
+      "attempts": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "retries": 0,
+      "max_batch": 41,
+      "review_ids_sent": 41,
+      "units": {
+       "ordinary_input": 2416,
+       "cached_input": 0,
+       "cache_write": 0,
+       "output": 1432
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.00024160000000000002,
+       "cached_input": 0.0,
+       "cache_write": 0.0,
+       "output": 0.000716
+      },
+      "api_usd": 0.0009576,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 9.828
+     },
+     "memo": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|memo-v2|mschema-v2"
+      ],
+      "requests": 1,
+      "attempts": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "retries": 0,
+      "max_batch": 16,
+      "review_ids_sent": 16,
+      "units": {
+       "ordinary_input": 2475,
+       "cached_input": 0,
+       "cache_write": 0,
+       "output": 727
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.0002475,
+       "cached_input": 0.0,
+       "cache_write": 0.0,
+       "output": 0.0003635
+      },
+      "api_usd": 0.000611,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 6.698
+     },
+     "verify": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2"
+      ],
+      "requests": 1,
+      "attempts": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "retries": 0,
+      "max_batch": 20,
+      "review_ids_sent": 20,
+      "units": {
+       "ordinary_input": 1100,
+       "cached_input": 0,
+       "cache_write": 0,
+       "output": 356
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.00011,
+       "cached_input": 0.0,
+       "cache_write": 0.0,
+       "output": 0.000178
+      },
+      "api_usd": 0.000288,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 2.659
+     }
+    }
+   },
+   "warm": {
+    "wall_clock_s": 0.03,
+    "stage_wall_clock_s": {
+     "enrich": 0.011,
+     "verify": 0.007,
+     "group": 0.003,
+     "rank": 0.003,
+     "memo": 0.004
+    },
+    "api_usd": 0,
+    "estimated_unresolved_usd": 0,
+    "enrich_attempts": 0,
+    "stages": {}
+   }
+  },
+  "per_1000_inputs_usd": 0.0391934,
+  "per_completed_record_usd": 3.91934e-05,
+  "throughput_reviews_per_s": 2.5751957148743303
+ },
+ "projection": {
+  "inputs": {
+   "system_prompt_tokens_per_request": 1762.0,
+   "ordinary_input_tokens_per_review": 28.55,
+   "output_tokens_per_review": 34.84,
+   "seconds_per_enrich_request": 9.79,
+   "verify_usd_per_review": 1.4400000000000001e-05,
+   "pilot_issue_count": 18
+  },
+  "scenarios": {
+   "base": {
+    "enrich_usd": 10.29989499665,
+    "enrich_no_reuse_usd": 14.051794091049999,
+    "verify_usd": 0.3521022408000001,
+    "verified_reviews": 24209,
+    "group_usd": 0.001596,
+    "memo_usd": 0.000611,
+    "fallback_usd": 0.0,
+    "total_api_usd": 10.65420423745,
+    "enrich_requests": 9684,
+    "exceeds_budget": false,
+    "hours_by_workers": {
+     "1": {
+      "hours": 27.22,
+      "requests_per_minute": 6.1,
+      "tokens_per_minute": 30224,
+      "within_provider_limits": true
+     },
+     "2": {
+      "hours": 13.61,
+      "requests_per_minute": 12.3,
+      "tokens_per_minute": 60447,
+      "within_provider_limits": true
+     },
+     "4": {
+      "hours": 6.81,
+      "requests_per_minute": 24.5,
+      "tokens_per_minute": 120895,
+      "within_provider_limits": true
+     }
+    }
+   },
+   "conservative": {
+    "enrich_usd": 14.957750162225,
+    "enrich_no_reuse_usd": 20.407419064825003,
+    "verify_usd": 0.4758609492000001,
+    "verified_reviews": 24209,
+    "group_usd": 0.0020748,
+    "memo_usd": 0.0009165,
+    "fallback_usd": 0.0,
+    "total_api_usd": 15.436602411425001,
+    "enrich_requests": 9684,
+    "exceeds_budget": false,
+    "hours_by_workers": {
+     "1": {
+      "hours": 43.99,
+      "requests_per_minute": 6.1,
+      "tokens_per_minute": 30224,
+      "within_provider_limits": true
+     },
+     "2": {
+      "hours": 22.0,
+      "requests_per_minute": 12.3,
+      "tokens_per_minute": 60447,
+      "within_provider_limits": true
+     },
+     "4": {
+      "hours": 11.0,
+      "requests_per_minute": 24.5,
+      "tokens_per_minute": 120895,
+      "within_provider_limits": true
+     }
+    }
+   }
+  },
+  "worst_case_if_every_request_hit_output_cap_usd": 19.368
+ }
+}
