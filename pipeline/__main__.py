@@ -48,11 +48,27 @@ def main():
     p.add_argument("--max-batches", type=int, help="stop after this many requests (interruption demo)")
     p.add_argument("--time-cap-s", type=float)
     p.add_argument("--fake-behaviors", default="", help="comma list for the fake client, e.g. drop_one,timeout")
+    v = sub.add_parser("verify", help="independent re-label of a declared random sample (default client: fake)")
+    v.add_argument("--run", required=True)
+    v.add_argument("--client", choices=["fake", "openai"], default="fake")
+    v.add_argument("--confirm-paid", action="store_true")
+    v.add_argument("--rate", type=float, default=config.VERIFY_RATE)
+    v.add_argument("--plant", type=int, default=10, help="planted-error test size (synthetic copy)")
+    v.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
     s = sub.add_parser("smoke", help="paid connection test: one request with 5 development reviews")
     s.add_argument("--confirm-paid", action="store_true")
     args = parser.parse_args()
 
     from .enrich import Enricher
+    if args.command == "verify":
+        if args.client == "openai" and not args.confirm_paid:
+            raise SystemExit("--client openai makes paid calls. Re-run with --confirm-paid to proceed.")
+        from .verify import Verifier
+        verifier = Verifier(config.RUNS / args.run, make_client(args.client), rate=args.rate, spend_cap=args.spend_cap)
+        summary = verifier.run()
+        summary["planted_error_test"] = {k: v for k, v in verifier.planted_error_test(args.plant).items() if k != "cases"}
+        print(json.dumps(summary, indent=1))
+        return
     if args.command == "smoke":
         if not args.confirm_paid:
             raise SystemExit("The smoke test makes one paid call (~$0.001). Re-run with --confirm-paid.")

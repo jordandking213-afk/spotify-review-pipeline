@@ -1,0 +1,25 @@
+{
+  "name": "verify_v1",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["r"],
+    "properties": {
+      "r": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["i", "t", "n", "s"],
+          "properties": {
+            "i": {"type": "integer"},
+            "t": {"type": "string", "enum": ["access", "usability", "playback", "downloads", "catalog", "billing", "support", "other"]},
+            "n": {"type": "string", "enum": ["cancellation", "complaint", "request", "praise", "unclear"]},
+            "s": {"type": "integer", "enum": [1, 2, 3, 4, 5]}
+          }
+        }
+      }
+    }
+  }
+}

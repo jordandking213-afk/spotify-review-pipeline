@@ -17,6 +17,17 @@ PROMPT_FILE = PROMPTS / "enrich_v2.system.md"
 SCHEMA_FILE = PROMPTS / "enrich_v2.schema.json"
 LABEL_CONFIG = f"{ENRICH_MODEL}|effort={ENRICH_EFFORT}|{PROMPT_VERSION}|{SCHEMA_VERSION}|{LABELS_VERSION}"
 
+# Verification role: a separate prompt that re-labels a declared random sample without seeing the first labels.
+VERIFY_MODEL = ENRICH_MODEL
+VERIFY_EFFORT = "none"
+VERIFY_PROMPT_VERSION = "verify-v1"
+VERIFY_PROMPT_FILE = PROMPTS / "verify_v1.system.md"
+VERIFY_SCHEMA_FILE = PROMPTS / "verify_v1.schema.json"
+VERIFY_CONFIG = f"{VERIFY_MODEL}|effort={VERIFY_EFFORT}|{VERIFY_PROMPT_VERSION}|vschema-v1|{LABELS_VERSION}"
+VERIFY_RATE = 0.05          # declared sample: 5% of distinct completed texts in the full run (Jordan, 2026-10-03)
+VERIFY_RATE_PILOT = 0.20    # declared sample for the 100-review pilot (Jordan, 2026-10-03)
+VERIFY_SEED = "verify-v1"   # sample = reviews whose SHA-256(seed:review_id) falls below the rate; reproducible
+
 # Bounds on every enrichment request.
 MAX_BATCH = 50              # contract limit: at most 50 reviews per request
 RETRY_BATCH = 10            # invalid items are re-sent once, in smaller requests

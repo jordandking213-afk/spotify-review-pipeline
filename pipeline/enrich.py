@@ -56,9 +56,16 @@ def reservation_usd(model, system_prompt, user_message):
     return (est_input * max(r["input"], r["cache_write"]) + config.MAX_OUTPUT_TOKENS * r["output"]) / 1e6
 
 
-def validate(raw_text, complete, sent):
-    """Check one response against what was sent. `sent` maps request number -> segment count.
-    Returns (valid items by number, invalid numbers, error description)."""
+def enrich_item_ok(item, n_segments):
+    return (set(item) == {"i", "t", "n", "s", "m", "q", "p", "f"} and item["t"] in TOPICS and item["n"] in INTENTS
+            and type(item["s"]) is int and 1 <= item["s"] <= 5 and item["m"] in SENTIMENTS
+            and type(item["q"]) is int and 1 <= item["q"] <= n_segments and type(item["p"]) is bool
+            and item["f"] in FLAGS)
+
+
+def validate(raw_text, complete, sent, item_ok=enrich_item_ok):
+    """Check one response against what was sent. `sent` maps request number -> segment count, and `item_ok`
+    checks one item. Returns (valid items by number, invalid numbers, error description)."""
     if not complete:
         return {}, set(sent), "incomplete_output"
     try:
@@ -73,10 +80,7 @@ def validate(raw_text, complete, sent):
         if number not in sent:
             continue                       # unknown number: ignored, cannot be mapped to a review
         seen[number] = seen.get(number, 0) + 1
-        ok = (set(item) == {"i", "t", "n", "s", "m", "q", "p", "f"} and type(item["p"]) is bool and item["t"] in TOPICS and item["n"] in INTENTS
-              and type(item["s"]) is int and 1 <= item["s"] <= 5 and item["m"] in SENTIMENTS
-              and type(item["q"]) is int and 1 <= item["q"] <= sent[number] and item["f"] in FLAGS)
-        (valid.__setitem__(number, item) if ok else invalid.add(number))
+        (valid.__setitem__(number, item) if item_ok(item, sent[number]) else invalid.add(number))
     for number, count in seen.items():    # a duplicated number is ambiguous: reject every copy
         if count > 1:
             valid.pop(number, None)
@@ -90,6 +94,27 @@ def validate(raw_text, complete, sent):
     if invalid - (set(sent) - set(seen)):
         errors.append("invalid_items")
     return valid, invalid, ",".join(errors) or None
+
+
+def call_with_backoff(client, system_prompt, message, schema, sleep):
+    """Runs in a worker thread. Bounded retries with exponential backoff and jitter for transient errors.
+    Returns (response or None, one log entry per attempt, permanent error message or None)."""
+    attempts = []
+    for attempt in range(1, config.TRANSIENT_ATTEMPTS + 1):
+        started, t0 = now(), time.monotonic()
+        try:
+            resp = client.enrich(system_prompt, message, schema, config.MAX_OUTPUT_TOKENS)
+            attempts.append({"started_at": started, "duration_s": time.monotonic() - t0, "attempt": attempt,
+                             "request_id": resp.request_id, "usage": resp.usage, "usage_known": True, "error": None})
+            return resp, attempts, None
+        except TransientError as e:
+            attempts.append({"started_at": started, "duration_s": time.monotonic() - t0, "attempt": attempt,
+                             "request_id": e.request_id, "usage": None, "usage_known": e.usage_known, "error": str(e)})
+            if attempt < config.TRANSIENT_ATTEMPTS:
+                sleep(config.BACKOFF_BASE_S * 2 ** (attempt - 1) * (0.5 + random.random()))
+        except PermanentError as e:
+            return None, attempts, str(e)
+    return None, attempts, None
 
 
 def to_labels(item, text):
@@ -184,25 +209,7 @@ class Enricher:
         return "<reviews>\n" + "\n".join(lines) + "\n</reviews>"
 
     def call_with_backoff(self, ids, message, reserved):
-        """Runs in a worker thread. Returns (response or None, attempt logs, permanent error message)."""
-        attempts = []
-        for attempt in range(1, config.TRANSIENT_ATTEMPTS + 1):
-            started, t0 = now(), time.monotonic()
-            try:
-                resp = self.client.enrich(self.system_prompt, message, self.schema, config.MAX_OUTPUT_TOKENS)
-                attempts.append({"started_at": started, "duration_s": time.monotonic() - t0, "attempt": attempt,
-                                 "request_id": resp.request_id, "usage": resp.usage, "usage_known": True,
-                                 "error": None})
-                return resp, attempts, None
-            except TransientError as e:
-                attempts.append({"started_at": started, "duration_s": time.monotonic() - t0, "attempt": attempt,
-                                 "request_id": e.request_id, "usage": None, "usage_known": e.usage_known,
-                                 "error": str(e)})
-                if attempt < config.TRANSIENT_ATTEMPTS:
-                    self.sleep(config.BACKOFF_BASE_S * 2 ** (attempt - 1) * (0.5 + random.random()))
-            except PermanentError as e:
-                return None, attempts, str(e)
-        return None, attempts, None
+        return call_with_backoff(self.client, self.system_prompt, message, self.schema, self.sleep)
 
     # --- saving -----------------------------------------------------------------------------------------
     def save(self, ids, is_retry, reserved, resp, attempts):

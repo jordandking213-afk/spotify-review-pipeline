@@ -55,13 +55,15 @@ class FakeClient:
     model = "fake-model"
     simulated = True
 
-    def __init__(self, behaviors=None, seed=0, latency_s=0.0):
+    def __init__(self, behaviors=None, seed=0, latency_s=0.0, perturb_every=0):
         """`behaviors` is a list consumed one per call: ok, drop_one, dup_one, bad_segment, bad_json, truncated,
         rate_limit, server_error, timeout, no_credit. After the list runs out, every call is ok."""
         self.behaviors = list(behaviors or [])
         self.rng = random.Random(seed)
         self.latency_s = latency_s
         self.calls = 0
+        self.perturb_every = perturb_every   # every k-th item gets a different topic (simulates a disagreeing verifier)
+        self.messages = []                   # what was sent, so tests can check what each role saw
 
     def _label(self, number, segs):
         text = " ".join(segs).lower()
@@ -87,6 +89,7 @@ class FakeClient:
 
     def enrich(self, system_prompt, user_message, schema, max_output_tokens):
         self.calls += 1
+        self.messages.append((system_prompt, user_message))
         request_id = f"fake-{uuid.uuid4().hex}"   # unique across runs, like real provider request IDs
         behavior = self.behaviors.pop(0) if self.behaviors else "ok"
         if self.latency_s:
@@ -102,13 +105,19 @@ class FakeClient:
 
         reviews = [(int(n), [line.split("> ", 1)[1] for line in body.strip().split("\n")])
                    for n, body in _REVIEW.findall(user_message)]
-        items = [self._label(n, segs) for n, segs in reviews]
+        items_raw = [self._label(n, segs) for n, segs in reviews]
+        if self.perturb_every:
+            order = [t for t, _ in _TOPIC_WORDS] + ["other"]
+            for item in items_raw[self.perturb_every - 1::self.perturb_every]:
+                item["t"] = order[(order.index(item["t"]) + 1) % len(order)]
+        keys = schema["schema"]["properties"]["r"]["items"]["required"]   # answer only what this role's schema asks
+        items = [{k: v for k, v in item.items() if k in keys} for item in items_raw]
         if behavior == "drop_one" and items:
             items.pop(self.rng.randrange(len(items)))
         elif behavior == "dup_one" and items:
             items.append(dict(items[0]))
         elif behavior == "bad_segment" and items:
-            items[-1]["q"] = 999
+            items[-1]["q" if "q" in items[-1] else "s"] = 999
         text = json.dumps({"r": items}, separators=(",", ":"))
         complete = True
         if behavior == "bad_json":
