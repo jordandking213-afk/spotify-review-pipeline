@@ -1,0 +1,10 @@
+review_id,v1_topic,v1_intent,v1_severity,v2_topic,v2_intent,v2_severity,rule_cited,revised_on,revised_after_seeing_model_predictions,decided_by,jordan_note
+5de7f95b-ccad-41b2-9f63-a13f7c1d9f09,other,unclear,2,other,unclear,1,Severity 1 = neutral/unclear content,2026-10-03,true,Jordan,
+283b5843-a992-464f-b1dc-9dc7281ff390,other,unclear,2,other,unclear,1,Severity 1 = neutral/unclear content,2026-10-03,true,Jordan,
+b58dd6f0-ad88-4319-b6db-58afb60c37c1,catalog,request,3,catalog,request,1,Severity 1 includes a pure feature request,2026-10-03,true,Jordan,
+47f1406d-4918-4d60-9647-5ca8e610caca,playback,complaint,2,playback,complaint,4,Severity 4 = clearly blocked core task (cannot play music),2026-10-03,true,Jordan,
+372d4e67-59cc-4c54-879f-3e8a202ee554,other,complaint,3,usability,complaint,2,Ad interruptions are usability; annoyance is severity 2,2026-10-03,true,Jordan,
+991b6b3a-f511-458a-a5b7-234f78048fb5,access,complaint,3,billing,complaint,2,"Access is login/signup/account; limited functionality = vague paywall -> billing, severity 2 (decision 1b)",2026-10-03,true,Jordan,
+16d640e9-b281-4746-9562-c7dbcf7126b6,usability,complaint,3,billing,complaint,2,"Decision 1b: vague paywall with no named feature -> billing, severity 2",2026-10-03,true,Jordan,
+2aa566c6-b98d-4513-b900-83702a8db8eb,usability,complaint,2,usability,praise,1,Positive about few ads: praise; first specific praised feature (ads) -> usability; severity 1,2026-10-03,true,Jordan,
+723f07de-9881-4049-8680-1a9e25652914,support,complaint,1,support,praise,1,Severity 1 (no reported problem) contradicts a complaint label; review praises support for fixing the app,2026-10-03,true,Jordan,
