@@ -8,7 +8,11 @@ Baseline (GRADING_CONTRACT.md): for each issue, over its completed complaint/can
 Sensitivity check (Jordan, decision 1c): the same ranking with every paywall_named_feature complaint at severity 3
 re-scored as 2, to show whether the paywall severity decision changes the recommendation.
 
-Outputs under <run>/rank/: ranking.csv, aggregates.csv, ranking_paywall_sev2.csv, sensitivity.json
+Business ranking (Jordan, 2026-10-03): the same formula with `other.general` (vague catch-all complaints) excluded,
+clearly labeled as an additional view. Issue-level numbers are identical; only the order differs.
+
+Outputs under <run>/rank/: ranking.csv, aggregates.csv, ranking_paywall_sev2.csv, sensitivity.json,
+ranking_business_excl_other_general.csv
 """
 
 import csv
@@ -18,6 +22,7 @@ from collections import Counter, defaultdict
 from .store import Store
 from .vendor.check_submission import mean_string
 
+BUSINESS_EXCLUDED = "other.general"
 RANKING_FIELDS = ["rank", "issue_id", "complaint_count", "severity_sum", "mean_severity", "priority_score"]
 
 
@@ -97,6 +102,8 @@ def run(run_dir, log=print):
                    "top_issue_changes": bool(baseline) and baseline[0]["issue_id"] != alt[0]["issue_id"],
                    "rank_changes": [m for m in moves if m["baseline_rank"] != m["sensitivity_rank"]]}
     (out / "sensitivity.json").write_text(json.dumps(sensitivity, indent=1))
+    business = compute_ranking(severity, [(i, r) for i, r in membership if i != BUSINESS_EXCLUDED])
+    write_ranking(out / "ranking_business_excl_other_general.csv", business)
     log(f"rank: {len(baseline)} issues from {len(membership)} memberships; top = {sensitivity['top_issue_baseline']}; "
         f"paywall sensitivity re-scored {len(changed)} reviews, top issue changes: {sensitivity['top_issue_changes']}")
     return {"issues": len(baseline), "memberships": len(membership), "sensitivity": sensitivity}

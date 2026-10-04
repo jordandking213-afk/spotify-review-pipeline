@@ -75,5 +75,18 @@ class RankStageTests(unittest.TestCase):
         self.assertEqual(sum(drop.values()), summary["sensitivity"]["reviews_rescored"])
 
 
+class BusinessRankingTests(RankStageTests):
+    def test_business_ranking_excludes_other_general_and_keeps_numbers(self):
+        rank.run(self.dir / "run", log=lambda *a: None)
+        base = {r["issue_id"]: r for r in csv.DictReader(open(self.dir / "run" / "rank" / "ranking.csv"))}
+        biz = list(csv.DictReader(open(self.dir / "run" / "rank" / "ranking_business_excl_other_general.csv")))
+        self.assertNotIn("other.general", [r["issue_id"] for r in biz])
+        self.assertEqual(len(biz), len(base) - ("other.general" in base))
+        for r in biz:
+            for k in ("complaint_count", "severity_sum", "mean_severity", "priority_score"):
+                self.assertEqual(r[k], base[r["issue_id"]][k])
+        self.assertEqual([r["rank"] for r in biz], [str(i) for i in range(1, len(biz) + 1)])
+
+
 if __name__ == "__main__":
     unittest.main()

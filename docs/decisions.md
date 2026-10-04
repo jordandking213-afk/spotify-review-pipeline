@@ -13,3 +13,6 @@ Design decisions about the pipeline (label decisions live in `labels/definitions
 | 2026-10-03 | Issue rules **issues-v1** accepted (`pipeline/issues.py`): code assigns each complaint/cancellation to one `topic.facet` issue; the model only names issues | — | Jordan accepted the rules as proposed |
 | 2026-10-03 | Memo design approved: model cites code-computed claims by ID and cannot write digits itself; code rejects unknown claims, digits outside claim references, and review IDs outside the evidence pack; area totals reported as separately labeled quantities | — | Jordan approved the design as proposed |
 | 2026-10-03 | Second business ranking excluding `other.general`: **deferred** until the pilot shows that issue's size | — | Required baseline ranking is unaffected |
+| 2026-10-03 | **Add a business ranking** that excludes `other.general` (vague catch-all complaints), clearly labeled; the required baseline is unchanged | — | Jordan chose option (a); on 10,000 reviews `other.general` ranked first |
+| 2026-10-03 | Memo criterion: **total severity first** (the baseline priority score), with **mean severity as a named secondary consideration** | — | Jordan chose option (b); implemented as prompt memo-v3 |
+| 2026-10-03 | Full run with **4 workers** | — | The highest worker count measured (10,000 checkpoint); ~7 h base, ~11 h conservative |

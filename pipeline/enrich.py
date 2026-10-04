@@ -13,6 +13,8 @@ import hashlib
 import json
 import math
 import random
+import signal
+import threading
 import time
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import datetime, timezone
@@ -296,10 +298,24 @@ class Enricher:
         queue += [(retry[i:i + config.RETRY_BATCH], True) for i in range(0, len(retry), config.RETRY_BATCH)]
 
         stop_reason, dispatched, consecutive_failures = None, 0, 0
+        total_requests, finished, last_report = len(queue), 0, time.monotonic()
         in_flight = {}      # future -> (ids, is_retry, reserved)
+        # Ctrl-C sets a flag instead of raising mid-save: no new requests are sent, in-flight requests finish and
+        # are saved with their call logs, then the run stops. A second Ctrl-C forces an immediate exit.
+        self.interrupted = False
+        previous_handler = None
+        if threading.current_thread() is threading.main_thread():
+            def on_sigint(signum, frame):
+                if self.interrupted:
+                    raise KeyboardInterrupt
+                self.interrupted = True
+                self.log("  Ctrl-C received: sending nothing new; finishing and saving in-flight requests, then stopping")
+            previous_handler = signal.signal(signal.SIGINT, on_sigint)
         pool = ThreadPoolExecutor(max_workers=self.workers)
         try:
             while queue or in_flight:
+                if self.interrupted and stop_reason is None:
+                    stop_reason = "interrupted"
                 while queue and len(in_flight) < self.workers and stop_reason is None:
                     ids, is_retry = queue[0]
                     message = self.build_message(ids)
@@ -330,7 +346,16 @@ class Enricher:
                         stop_reason = stop_reason or "too_many_consecutive_failures"
                     for i in range(0, len(to_retry), config.RETRY_BATCH):
                         queue.append((to_retry[i:i + config.RETRY_BATCH], True))
-        except KeyboardInterrupt:
+                    finished += 1
+                    if time.monotonic() - last_report >= 30 or not (queue or in_flight):
+                        last_report = time.monotonic()
+                        elapsed = last_report - t_start
+                        eta = elapsed / finished * max(len(queue) + len(in_flight), 0) / 60
+                        counts = self.store.count_by_status()
+                        self.log(f"  progress: {finished}/{total_requests} requests saved | completed records "
+                                 f"{counts.get('completed', 0):,} | pending {counts.get('pending', 0):,} | spent "
+                                 f"${self.spent:.4f} | {elapsed / 60:.1f} min elapsed | ~{eta:.0f} min left")
+        except KeyboardInterrupt:    # second Ctrl-C: still save whatever has already returned
             stop_reason = "interrupted"
             for future in list(in_flight):        # let in-flight calls finish and save them; dispatch nothing new
                 ids, is_retry, reserved = in_flight.pop(future)
@@ -338,6 +363,8 @@ class Enricher:
                 self.save(ids, is_retry, reserved, resp, attempts)
         finally:
             pool.shutdown(wait=True)
+            if previous_handler is not None:
+                signal.signal(signal.SIGINT, previous_handler)
 
         stop_reason = stop_reason or "complete"
         wall = time.monotonic() - t_start

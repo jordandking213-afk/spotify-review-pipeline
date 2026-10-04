@@ -75,7 +75,7 @@ class MemoTests(unittest.TestCase):
         _, message = client.messages[-1]
         quantities = json.loads((self.memo_dir / "quantities.json").read_text())
         quoted = message.count("[review:")
-        self.assertLessEqual(quoted, 3 * 6, "at most 3 quotes for each of the top 6 issues")
+        self.assertLessEqual(quoted, 3 * 12, "at most 3 quotes for each top issue of the two rankings")
         self.assertLess(len(message), 20_000)
         self.assertTrue(quantities["claims"])
 

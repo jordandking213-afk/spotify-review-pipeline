@@ -76,6 +76,8 @@ def main():
     r.add_argument("--verify-rate", type=float, default=config.VERIFY_RATE)
     r.add_argument("--spend-cap", type=float, default=config.SPEND_CAP_USD)
     r.add_argument("--max-batches", type=int)
+    st = sub.add_parser("status", help="show saved progress and the latest checkpoint of a run (no model)")
+    st.add_argument("--run", required=True)
     s = sub.add_parser("smoke", help="paid connection test: one request with 5 development reviews")
     s.add_argument("--confirm-paid", action="store_true")
     args = parser.parse_args()
@@ -89,6 +91,22 @@ def main():
         summary = verifier.run()
         summary["planted_error_test"] = {k: v for k, v in verifier.planted_error_test(args.plant).items() if k != "cases"}
         print(json.dumps(summary, indent=1))
+        return
+    if args.command == "status":
+        from .store import Store
+        run_dir = config.RUNS / args.run
+        store = Store(run_dir / "state.sqlite")
+        checkpoints = sorted((run_dir / "checkpoints").glob("*.json"), key=lambda p: p.stat().st_mtime)
+        latest = json.loads(checkpoints[-1].read_text()) if checkpoints else {}
+        calls = {}
+        for row in store.db.execute("SELECT role, phase, COUNT(*) FROM calls GROUP BY role, phase"):
+            calls[f"{row[0]}/{row[1]}"] = row[2]
+        print(json.dumps({"run": args.run, "label_config": store.get_meta("label_config"),
+                          "record_counts": store.count_by_status(), "spent_usd": round(store.spent_usd(), 6),
+                          "calls_by_role_and_phase": calls,
+                          "checkpoints": [p.name for p in checkpoints],
+                          "latest_checkpoint": {k: latest.get(k) for k in ("run_id", "phase", "stop_reason", "counts")}
+                          | {"completed_ids_saved": len(latest.get("completed_ids", []))}}, indent=1))
         return
     if args.command == "run":
         if args.client == "openai" and not args.confirm_paid:
