@@ -18,3 +18,10 @@ __pycache__/
 # Self-check reports stay outside the submitted grading folder.
 local-reference.json
 self-check.json
+
+# Original full-resolution screen recording stays local (compressed copy is committed)
+evals/recovery/*.mov
+# Local duplicate of the v1 golden labels file written by the labeling helper
+evals/golden/golden_50_human_labels.csv
+# Run databases and working files (large; graded evidence is exported to grading/, cost/, evals/)
+runs/

@@ -52,7 +52,9 @@ def export(run_dir, out, before_path=None):
     shutil.copyfile(run_dir / "group" / "membership.csv", out / "membership.csv")
     shutil.copyfile(run_dir / "rank" / "ranking.csv", out / "ranking.csv")
     shutil.copyfile(run_dir / "memo" / "claims.csv", out / "claims.csv")
-    with open(out / "calls.jsonl", "w", encoding="utf-8") as f:
+    if (out / "calls.jsonl").exists():
+        (out / "calls.jsonl").unlink()
+    with gzip.open(out / "calls.jsonl.gz", "wt", encoding="utf-8") as f:
         for call in store.calls():
             f.write(json.dumps(contract_call(call)) + "\n")
 

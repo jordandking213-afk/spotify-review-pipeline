@@ -1,11 +1,14 @@
 # Spotify review pipeline: where should Spotify's next quarter of product effort go?
 
-> **DRAFT OUTLINE.** Sections marked **✍️ JORDAN — OWN WORDS** are intentionally blank and must be written by Jordan.
-> Any hint text inside them is *suggested text only* and must be rewritten in his own words. Numbers marked
-> **(after full run)** are filled in from saved outputs once the full run finishes.
+> Sections headed **(Jordan, own words)** are Jordan's explanations. All other text describes measured results and
+> saved files; every number below comes from a file linked next to it.
 
 A multi-agent pipeline that classifies all 660,622 Spotify Google Play reviews (May 2022 – November 2023) and turns
 them into a product recommendation in which every number traces back to saved calculations and review IDs.
+
+**Answer:** prioritize **playback** next quarter. `playback.general` is the largest specific issue (priority score
+117,894; 35,331 complaints, mean severity 3.34). Usability has the largest area total (179,800) but is spread across
+several smaller issues. See the [decision memo](memo.md).
 
 **Grader entry points:** [rubric map](#rubric-map) · [results](#results-summary) · [decision memo](#decision-memo) ·
 [grading export](grading/) · [cost calculator](cost/README.md) · [golden evaluation](evals/golden/results_v1/summary.md)
@@ -23,10 +26,10 @@ them into a product recommendation in which every number traces back to saved ca
 | Coherent recommendation, alternatives, limitations | [Decision memo](#decision-memo); [paywall sensitivity](#ranking); [limitations](#limitations) |
 | **Testing & evaluation (3)** | |
 | 50 human labels, per-field comparison, error analysis | [Golden v1 results](evals/golden/results_v1/summary.md), [v2 with change log](evals/golden/results_v2/summary.md), [error analysis](#golden-50-evaluation) |
-| Independent verification, planted-error and injection tests | [Verification](#system-checks); [injection test](evals/injection/results.md); planted errors in `runs/full/verify/planted_errors.json` **(after full run)** |
+| Independent verification, planted-error and injection tests | [Verifier summary](evals/verify_full/summary.json) and [disagreements](evals/verify_full/disagreements.csv); [planted errors](evals/verify_full/planted_errors.json); [injection test](evals/injection/results.md) |
 | Real cold/warm pilot, offline calculator, retry/spend/recovery controls | [cost/report.md](cost/report.md); [failed attempt 1](cost/attempt-1-memo-failed/NOTE.md); [controls](#controls-retries-spending-recovery) |
 | **Working result (3)** | |
-| Full ingestion, coverage, classification | [grading/ingestion.json](grading/ingestion.json); course self-check **(after full run)** |
+| Full ingestion, coverage, classification | [grading/ingestion.json](grading/ingestion.json); [course self-check](#course-self-check): all 660,622 IDs accounted for, coverage point 0.9999 |
 | Runnable staged program, bounded calls, saved handoffs, resume | [Commands](#setup-and-commands); [interruption/resume evidence](#interruption-and-resume) |
 | Reproducible baseline ranking, grounded final output | [Ranking](#ranking); `python3 -m pipeline.rerank --grading grading`; [memo](#decision-memo) |
 
@@ -34,15 +37,21 @@ them into a product recommendation in which every number traces back to saved ca
 
 ## Results summary
 
-**Measured (full run)** — *(after full run)*
+**Measured (full run, `runs/full`, label_config `gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2`)**
 
 | | Value | Source |
 |---|---|---|
-| Source rows / completed / quarantined / pending | — / — / — / — | `grading/records.jsonl.gz` |
-| Exact-text cache reuse | — rows (484,189 distinct texts sent) | `cache_source_id` in records |
-| Enrichment requests / failed attempts / retries | — | `grading/calls.jsonl` |
-| Verifier agreement (5% sample) | topic —, intent —, severity — | `runs/full/verify/summary.json` |
-| Actual API cost / wall-clock time | — / — | `runs/full/run_summary.json` |
+| Source rows | 660,622, all accounted for (0 missing, 0 duplicate) | [grading/records.jsonl.gz](grading/) |
+| Completed classifications | **660,539** of 660,609 nonempty (99.989%) | same |
+| Quarantined | **83**: 13 `empty_review_text`; 61 `invalid_output_after_retry`; 9 duplicates of those 61 texts | same |
+| Pending (unclassified) | 0 | same |
+| Exact-text cache reuse | 176,411 rows reused a completed original's labels (`cache_source_id`) | same |
+| Enrichment attempts / failed / invalid-output retry calls | 10,662 / 196 / 965 | [grading/calls.jsonl.gz](grading/) |
+| Verifier agreement (5% sample, 24,416 reviews) | topic 87.2%, intent 94.0%, severity 89.8%, all three 75.7%; mean severity difference 0.11 | [evals/verify_full/summary.json](evals/verify_full/summary.json) |
+| Planted wrong labels caught | 191 of 200 | [evals/verify_full/planted_errors.json](evals/verify_full/planted_errors.json) |
+| API cost (full run) | **$10.94** (enrich $10.57, verify $0.33, group $0.002, memo $0.001) — base estimate was $11.07 | [evals/full_run_summary.json](evals/full_run_summary.json) |
+| Wall-clock time | 55.5 s before the interruption + 7.7 h after resume (enrich 6.9 h, verify 49 min, group/rank/memo under 1 min) | same |
+| **Total API spend, whole project** | **$11.15** (all smoke tests, pilots, checkpoints, golden, injection, full run, memo regeneration) | `runs/*/state.sqlite` |
 
 **Measured (development checkpoints, before the full run)**
 
@@ -100,7 +109,7 @@ I used the model only when it requires reading and understanding messy human lan
 
 - Shared definitions, examples and Jordan's decision log: [labels/definitions.md](labels/definitions.md)
 - Record schema and who produces each field: [labels/record_schema.md](labels/record_schema.md)
-- Prompts (versioned): [prompts/](prompts/) — `enrich-v2`, `verify-v1`, `group-v2`, `memo-v3`
+- Prompts (versioned): [prompts/](prompts/) — final: `enrich-v2`, `verify-v1`, `group-v2`, `memo-v4` (earlier versions kept)
 - Pipeline decisions with Jordan's reasoning: [docs/decisions.md](docs/decisions.md)
 
 ---
@@ -126,15 +135,30 @@ Intent was most reliable (92%) because there are obvious signals and few intents
 
 | Check | Result | Evidence |
 |---|---|---|
-| Independent verifier (full run, 5%) | *(after full run)* | `runs/full/verify/` |
-| Planted wrong labels (synthetic copy) | *(after full run)* | `runs/full/verify/planted_errors.json` |
+| Independent verifier (full run, seeded 5% sample of distinct texts) | 24,416 verified, 0 failed; topic 87.2%, intent 94.0%, severity 89.8%; 5,945 reviews with any disagreement listed | [evals/verify_full/](evals/verify_full/) |
+| Planted wrong labels (synthetic copy; real records untouched) | 191 of 200 deliberately wrong topics contradicted by the verifier | [evals/verify_full/planted_errors.json](evals/verify_full/planted_errors.json) |
 | Prompt injection (6 attacks + 2 controls, synthetic) | 8/8 passed; no injected label adopted | [evals/injection/results.md](evals/injection/results.md) |
-| Safeguard tests (fake model, $0) | 60 tests pass | `python3 -m unittest discover -s tests -t .` |
+| Human inspection of the memo | caught a false comparison in memo-v3 that passed all automated checks; regenerated as memo-v4 | [evals/memo-inspection/](evals/memo-inspection/) |
+| Safeguard tests (fake model, $0) | 63 tests pass | `python3 -m unittest discover -s tests -t .` |
+
+### Course self-check
+`python3 -m pipeline.grading_export --run full --out grading --check` runs the course's `check_submission.py`
+(reference + audit) on the exported folder. Result: every one of the 660,622 IDs present once with the correct row
+hash; 660,539 valid completed and 83 quarantined with reasons; 176,411 valid cache reuses; exact-quote, ranking,
+claims, call-log and interruption/resume checks pass. The only flag is `unfinished_classification` for the 70
+nonempty reviews that stayed quarantined (see the failed case below). Coverage point candidate: **0.9999**.
 
 ### Interruption and resume
-*(after full run: recording link, `grading/checkpoint_before.json` vs `checkpoint_after.json` counts, initial vs
-resume calls, and proof that no completed ID was re-sent.)* So far: interrupted after 13 requests with 65,174
-records saved; resumed in phase `resume`.
+- Recording: [evals/recovery/interruption_resume_demo_720p.m4v](evals/recovery/interruption_resume_demo_720p.m4v)
+  (compressed copy; Jordan started the full run, pressed Ctrl-C, showed `status`, and re-ran the same command).
+- Before: the `initial` run sent 13 enrichment requests, then stopped with `stop_reason: interrupted` after saving its
+  in-flight requests. [grading/checkpoint_before.json](grading/checkpoint_before.json) lists **65,174** completed IDs
+  (64,574 of them, 99.1%, are exact-duplicate copies of the first texts sent, e.g. "Good").
+- After: the same command resumed with `phase: resume` and completed the run;
+  [grading/checkpoint_after.json](grading/checkpoint_after.json) lists **660,539** completed IDs.
+- No ID in the before-checkpoint appears in any `resume`-phase enrichment call, and every before-checkpoint ID was
+  completed by an `initial` call or by cache reuse: the course checker's `resume_snapshot_mismatch`,
+  `resume_call_evidence` and `reprocessed_checkpoint` checks all pass.
 
 ### Controls: retries, spending, recovery
 - Spend cap $45 enforced before each request, counting in-flight reservations; unknown-usage calls count their full
@@ -150,13 +174,37 @@ records saved; resumed in phase `resume`.
 - Business view (additional, labeled): same numbers with `other.general` excluded.
 - Paywall sensitivity (Jordan's decision 1c): named-feature paywall complaints re-scored from 3 to 2.
 - Regenerate from the exported files without a model: `python3 -m pipeline.rerank --grading grading` (exits non-zero if the result differs from `grading/ranking.csv`)
-- Results: *(after full run)*
+- Results (full run; [grading/ranking.csv](grading/ranking.csv), [evals/rank_full/](evals/rank_full/)):
+
+| Baseline rank | Issue | Complaints | Severity sum = priority | Mean severity |
+|---|---|---|---|---|
+| 1 | `other.general` (vague catch-all) | 90,127 | 178,774 | 1.983579 |
+| 2 | `playback.general` | 35,331 | 117,894 | 3.336843 |
+| 3 | `billing.paywall_named_feature` | 22,790 | 68,708 | 3.014831 |
+| 4 | `usability.ads` | 27,830 | 64,246 | 2.308516 |
+| 5 | `usability.general` | 19,755 | 49,361 | 2.498659 |
+
+  Business view (excluding `other.general`): `playback.general`, `billing.paywall_named_feature`, `usability.ads`, …
+  Area totals (severity sum): usability 179,800; playback (incl. downloads) 160,236; billing/support 149,052;
+  access 38,464; catalog 49,733 and other 178,774 are outside the four areas.
+  Paywall sensitivity: re-scoring 25,738 named-feature paywall complaints from 3 to 2 lowers that issue to 46,289 and
+  leaves the top issue (`other.general`) and the top specific issue (`playback.general`) unchanged.
 
 ---
 
 ## Decision memo
 
-*(after full run: link to `runs/full/memo/memo.md` copy, summary of priority, claim IDs.)*
+**[memo.md](memo.md)** (memo-v4, generated by the memo role from saved aggregates; every number is a reference to
+[grading/claims.csv](grading/claims.csv) or the quantities table at the end of the memo).
+
+- **Priority:** playback, because `playback.general` is the top specific issue (C6 = 117,894; C5 mean severity
+  3.336843), following Jordan's issue-level rule; the memo states that usability has the largest area total
+  (X5 = 179,800).
+- **Alternatives:** usability (led by `usability.ads`, C12 = 64,246), billing/support (led by
+  `billing.paywall_named_feature`, C9 = 68,708), access (X2 = 38,464).
+- **Representative reviews cited:** `98333d3d-0049-4711-a8c9-8daf98e04479` (playback keeps stopping),
+  `98fee45a-083f-4315-a7f5-3a66f9bd22fd` (repeat removed; see Limitations).
+- **Sensitivity and limitations:** included; 83 quarantined reviews disclosed (X21).
 
 ### My inspection of the memo's argument (Jordan, own words)
 
@@ -183,8 +231,29 @@ Evidence: [cost/attempt-1-memo-failed/NOTE.md](cost/attempt-1-memo-failed/NOTE.m
 
 ## One review traced end to end
 
-*(after full run: one real review — source ID → enrichment labels → verification → issue membership → ranking row →
-memo claim; plus one failed or ambiguous case and the handling decision.)*
+Facts below are read from the saved files; they are not explanations.
+
+**A real review: `a4602160-1498-4960-ab65-91d4e6bcec25`**
+
+| Step | What happened | Where to check |
+|---|---|---|
+| Source | "Always says ur offline even when high speed internet is on... Foolish app" (rating 1, app 8.7.30.1221, 2022-05-17 08:00:16) | source CSV |
+| Row hash | `8c50d4e842f47540bcc6ee624f7354ddae7add703837ded3c7a1b09329f2d8d2` | `source_sha256` in grading/records.jsonl.gz |
+| Enrichment | sent once in request `resp_0ff9a01adb7d722b016ac1c1a3390c87d083fa62da65ab2795` (50 reviews, phase `initial`, succeeded) → playback / complaint / severity 4 / sentiment −1; evidence quote = segment 1, "Always says ur offline even when high speed internet is on..." (exact substring); entities `[offline]`; needs_review false | grading/calls.jsonl.gz, records |
+| Verification | in the seeded 5% sample; the verifier, seeing only the text, answered playback / complaint / 4 — full agreement (request `resp_08720387529368c7016ac2233e8ab487d08c24ce0e564109af`) | evals/verify_full/ |
+| Issue membership | `playback.general,a4602160-…` (topic playback; no `crash`/`car`/`podcast` entity, so the catch-all facet) | grading/membership.csv |
+| Ranking | contributes severity 4 to `playback.general`: rank 2, 35,331 complaints, severity sum 117,894, mean 3.336843 | grading/ranking.csv |
+| Memo claim | C5 (mean severity 3.336843) and C6 (priority score 117,894) of `playback.general`, the basis of the recommendation | grading/claims.csv, memo.md |
+
+**A failed case: `03e07dd0-3f15-41d8-b4af-6ad3f21f70d7`** ("Greatest music platform yet")
+- First sent in a 50-review request at 03:18 UTC whose response could not be parsed (`unparseable_json`); nothing
+  from that response could be saved, so all 50 reviews were queued for the one allowed retry.
+- Retried at 09:46 UTC in a 10-review request; that response was also `unparseable_json`.
+- Handling decision: quarantined with reason `invalid_output_after_retry`, attempts 2; not counted as a completed
+  classification and excluded from the ranking; the review text is ordinary, so the failure is a batch-level output
+  failure, not a hard review. 61 reviews were quarantined after one retry (their 7 failed retry requests: 4 unparseable, 2 cut off, 1 with an
+  invalid item), plus 9 duplicate copies
+  of their texts. A future version should retry a failed retry batch one review at a time.
 
 ---
 
@@ -192,6 +261,7 @@ memo claim; plus one failed or ambiguous case and the handling decision.)*
 - Self-selected, public, historical reviews; not representative of all users. No revenue, plan tier or confirmed churn;
   cancellation intent is not observed churn.
 - Model labels are imperfect (see golden and verifier agreement); severity tends to be rated high.
+- 70 nonempty reviews (0.011%) stayed quarantined after one retry and are not classified (see the failed case).
 - Issue groups come from fixed rules on matched feature words; `other.general` is broad.
 - **The model sometimes used outside knowledge.** Some reviews were labeled as Premium paywall complaints although the
   text never mentions Premium or payment (e.g. `98fee45a`, "can't even put a playlist on repeat anymore"), likely
@@ -230,3 +300,7 @@ re-ranking and the self-check need no key.
 | Grading export + course self-check | `python3 -m pipeline.grading_export --run full --out grading --check` | no |
 | Tests (fake model) | `python3 -m unittest discover -s tests -t .` | no |
 | Re-rank from exported files (no model) | `python3 -m pipeline.rerank --grading grading` | no |
+
+**Large files:** `runs/` (≈0.5 GB of run databases) is not committed; everything needed for grading is exported to
+`grading/`, `cost/` and `evals/`. The original full-resolution screen recording is kept locally; a 720p copy is
+committed.

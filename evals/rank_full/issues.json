@@ -1,0 +1,372 @@
+{
+ "group_config": "gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1",
+ "issue_rules": "issues-v1",
+ "pack_sha256": "c69d7e82774797aaa1e4a9a2f2e8f3dfc72bf7bd39121170aaf0fb49b1f5b79d",
+ "naming_source": "model",
+ "issues": [
+  {
+   "issue_id": "access.account",
+   "rule": "entities include any of ['account']",
+   "member_count": 927,
+   "name": "Account access and management problems",
+   "description": "People report trouble deleting or changing accounts, recovering access, and securing compromised accounts.",
+   "example_review_ids": [
+    "46ffebcf-17e0-4efa-917c-3a28950b11f4",
+    "3b6bd644-ec8e-405a-b4fc-b4a13b45528a",
+    "f130172f-feff-4cc6-b7f4-4be06efea121"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "access.general",
+   "rule": "no earlier rule matched",
+   "member_count": 1966,
+   "name": "App access failures",
+   "description": "The app may fail to open or work, log people out, or prevent them from getting back in.",
+   "example_review_ids": [
+    "0987ad63-2f05-4e15-a7d8-80ba47b8c030",
+    "ebde9fd8-e747-4f5f-8b56-6c263be74f06",
+    "6667f32e-f0ef-41cb-9417-05d8b39fc367"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "access.login",
+   "rule": "entities include any of ['login']",
+   "member_count": 7013,
+   "name": "Login failures",
+   "description": "People are unable to log in, including when using a phone number or trying to access an existing account.",
+   "example_review_ids": [
+    "d177365b-32bd-4f70-b6b4-a7065e3dea30",
+    "356d07fd-5eec-48d6-a363-b1dde5a323e5",
+    "69f8ea0a-1add-4cc3-a369-0e0d0417ee3f"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "billing.charges_refunds",
+   "rule": "entities include any of ['charge']",
+   "member_count": 841,
+   "name": "Unexpected or incorrect charges",
+   "description": "Customers report unwanted, repeated, or incorrect charges, as well as difficulty canceling subscriptions or getting paid features activated.",
+   "example_review_ids": [
+    "0fad52fa-031c-42da-99a6-65c9a3587ff5",
+    "a35cedc1-a152-409f-b87f-79cd5c5deae9",
+    "1da0a951-9c68-4102-b02a-7f7203371089"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "billing.general",
+   "rule": "no earlier rule matched",
+   "member_count": 10381,
+   "name": "Basic features require payment",
+   "description": "People feel that too many basic app features are restricted to paid plans and that the free experience is inadequate.",
+   "example_review_ids": [
+    "2b4cfb06-83d1-4c9b-99b8-225d52ee4801",
+    "efb05b2c-5a98-44ba-9e9a-1f553cc85c44",
+    "ca331720-2148-4447-b543-e5d343867ecc"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "billing.paywall_named_feature",
+   "rule": "paywall_named_feature = true",
+   "member_count": 22790,
+   "name": "Features restricted to Premium",
+   "description": "Specific listening and playback features, including lyrics and repeat, are unavailable or limited without Premium.",
+   "example_review_ids": [
+    "df5fc1d8-ac1e-4ae4-8519-5ec454b60f82",
+    "98fee45a-083f-4315-a7f5-3a66f9bd22fd",
+    "78f96555-5c73-4caf-b033-0a5e57026db5"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "billing.premium_other",
+   "rule": "entities include any of ['premium']",
+   "member_count": 16507,
+   "name": "Pressure to get Premium",
+   "description": "People feel pushed toward Premium because ads and limits make the free experience difficult to use.",
+   "example_review_ids": [
+    "58d1f7a9-3c68-4f34-9018-bad8d0865826",
+    "5a9cb840-692c-4dc5-a0fd-926fe8d46e1e",
+    "6c31bd32-2b09-4ba5-aa46-3e4614e8b955"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "billing.price",
+   "rule": "entities include any of ['price']",
+   "member_count": 1183,
+   "name": "Premium is too expensive",
+   "description": "Customers consider Premium prices too high or no longer worthwhile.",
+   "example_review_ids": [
+    "77bccaa5-7a0e-4147-9268-b1e4da095371",
+    "55000ab8-dfdb-4746-80c2-298f3536692b",
+    "02404778-dc81-4095-8d4d-b245d6606687"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "billing.subscription",
+   "rule": "entities include any of ['subscription']",
+   "member_count": 2714,
+   "name": "Subscription limitations and upselling",
+   "description": "People object to subscription restrictions, unwanted upselling, or subscription periods that do not last as expected.",
+   "example_review_ids": [
+    "326e1ea8-38b2-4b5a-84b9-29d313a08484",
+    "9ea7169e-05af-437d-947e-53ec581bc0f5",
+    "9826917c-00aa-4fa2-a94f-75e5a01c728c"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "catalog.general",
+   "rule": "no earlier rule matched",
+   "member_count": 9480,
+   "name": "Missing or mismatched catalog content",
+   "description": "People report unavailable songs or content, missing album tracks, and recommendations or results that do not match their chosen language.",
+   "example_review_ids": [
+    "39cc6a70-dbd9-4168-82bc-62d87d122e08",
+    "63d42a41-8ac7-4697-809a-124a747383c5",
+    "ec29be3e-40b1-4835-9b52-5b5699c91f88"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "catalog.lyrics",
+   "rule": "entities include any of ['lyrics']",
+   "member_count": 4204,
+   "name": "Lyrics missing or not loading",
+   "description": "Lyrics are missing, fail to load, or have stopped appearing in the app.",
+   "example_review_ids": [
+    "73ecdac1-9b02-4287-802d-4a4031b00a1a",
+    "8b95625c-8ade-41ee-8423-1c12d4f59677",
+    "a019e6bc-a3ea-4741-96ec-922790131ecf"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "catalog.podcasts_audiobooks",
+   "rule": "entities include any of ['audiobook', 'podcast']",
+   "member_count": 547,
+   "name": "Podcast availability and discovery issues",
+   "description": "People report inaccessible podcast shows and unwanted podcast suggestions or placement in the app.",
+   "example_review_ids": [
+    "5f1241c3-b94b-4906-ae27-7ecd8ea3be41",
+    "437f5b54-040e-48d4-b7d3-a098c875f44c",
+    "d8a2b281-b2a1-4aad-82c6-86f2a3c497b4"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "catalog.recommendations",
+   "rule": "entities include any of ['recommendations']",
+   "member_count": 1422,
+   "name": "Unwanted or repetitive recommendations",
+   "description": "Recommendations may be irrelevant, repetitive, or replace music people intended to hear.",
+   "example_review_ids": [
+    "8c0598e8-97cb-47d9-884b-6ee59622bc3c",
+    "dc7665aa-7c38-436c-bcf1-62f521f43c2d",
+    "7d7c589f-409f-4480-8d74-eb93ce7215fe"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "catalog.search",
+   "rule": "entities include any of ['search']",
+   "member_count": 1696,
+   "name": "Search problems",
+   "description": "Search may fail to find or play the intended song, show connection errors, or lead to a blank page.",
+   "example_review_ids": [
+    "177d9eb4-eea8-4a38-84a3-a051385573ed",
+    "89b407ab-0744-452d-94fe-128d7b94fb1f",
+    "682957ef-cf72-400b-9ae4-787750b4b904"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "downloads.general",
+   "rule": "no earlier rule matched",
+   "member_count": 4241,
+   "name": "Downloads fail or disappear",
+   "description": "Downloads may not work, disappear unexpectedly, or be lost from playlists and albums.",
+   "example_review_ids": [
+    "37837df6-24b1-4811-a0f4-6517cdacdbbe",
+    "17ba8622-a5aa-40e8-90bc-7219b68bad0e",
+    "22a616a2-5776-4039-8819-f25f18b1ba4b"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "downloads.offline",
+   "rule": "entities include any of ['offline']",
+   "member_count": 1705,
+   "name": "Downloaded music unavailable offline",
+   "description": "Downloaded content may not play or remain available without an internet connection.",
+   "example_review_ids": [
+    "99319913-c392-4c0d-b4a4-e487a3b358ce",
+    "4fac153f-7e69-47e8-9a36-044d76a221e0",
+    "5ce9e9bc-d731-47c2-8486-964ed5b50139"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "other.general",
+   "rule": "no earlier rule matched",
+   "member_count": 90127,
+   "name": "General dissatisfaction",
+   "description": "These reviews express broad dissatisfaction with Spotify or its updates without identifying a specific app problem.",
+   "example_review_ids": [
+    "e728eefe-686d-45a7-bb23-cc08bee1f11d",
+    "6e14ba8c-b058-4564-a32c-8d34ef3caf24",
+    "b1b3e5a2-4ac6-419e-951c-365402f9d00f"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "playback.crashes",
+   "rule": "entities include any of ['crash']",
+   "member_count": 3468,
+   "name": "App crashes during use",
+   "description": "The app crashes unexpectedly, including during song changes, playlist selection, or when changing playback settings.",
+   "example_review_ids": [
+    "1d4ec768-21cd-4768-aa8c-3bcd1c57ef9b",
+    "798d8665-712b-4156-a0ec-362674216bae",
+    "778fc116-f3c9-4992-8e48-33a7fe1d5ed0"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "playback.devices",
+   "rule": "entities include any of ['bluetooth', 'car']",
+   "member_count": 1184,
+   "name": "Playback problems with car and Bluetooth",
+   "description": "People report trouble connecting or playing through car and Bluetooth devices, including playback that gets stuck.",
+   "example_review_ids": [
+    "5ea35621-4ee1-486d-a8ba-5928ed1f8e15",
+    "17d6113d-e023-41ef-9bdc-b503e5938191",
+    "328787f5-f5d6-45d2-b696-b8a2bd1f68b2"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "playback.general",
+   "rule": "no earlier rule matched",
+   "member_count": 35331,
+   "name": "Music stops or plays incorrectly",
+   "description": "Music may stop unexpectedly, restart, report a false offline status, or fail to play the intended song.",
+   "example_review_ids": [
+    "98333d3d-0049-4711-a8c9-8daf98e04479",
+    "07aa9843-384f-408a-9570-f11a268d6ba3",
+    "d0933791-1bc0-4f19-8ce4-420c763e7886"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "playback.podcasts",
+   "rule": "entities include any of ['podcast']",
+   "member_count": 2017,
+   "name": "Podcast playback interruptions",
+   "description": "Podcasts may stop, hang, fail to play, or buffer unexpectedly, including downloaded episodes.",
+   "example_review_ids": [
+    "18cfae15-27cd-4bb3-9e0b-02dd08e44679",
+    "14e54d1d-52bc-4a75-a5c9-a427cf1b6a61",
+    "3beb63fb-1fd8-4731-85fa-011b0e83663c"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "support.general",
+   "rule": "no earlier rule matched",
+   "member_count": 532,
+   "name": "Unresponsive or unhelpful support",
+   "description": "People report receiving no response or poor assistance when seeking help with Spotify problems.",
+   "example_review_ids": [
+    "659121aa-d614-480c-8acb-abb7463b269c",
+    "50076b04-fbd1-4a0a-9cad-b5066a243066",
+    "0028d1fc-492b-4c83-8112-187186d5cbea"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "usability.ads",
+   "rule": "entities include any of ['ads']",
+   "member_count": 27830,
+   "name": "Too many advertisements",
+   "description": "People find the volume or repetition of advertisements disruptive, including during podcasts.",
+   "example_review_ids": [
+    "90e3e8b8-0f53-432a-bd5b-a7f0108b4b5a",
+    "882cec80-7be0-48a1-b451-6cae6fb81114",
+    "81e427bb-74ad-480f-a447-b65127073a06"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "usability.devices",
+   "rule": "entities include any of ['bluetooth', 'car', 'widget']",
+   "member_count": 1125,
+   "name": "Playback starts automatically on devices",
+   "description": "Spotify starts playing automatically when devices connect or the app opens, and people struggle to stop it.",
+   "example_review_ids": [
+    "e1e4dde1-b2af-4afd-8338-ea7af8898f9b",
+    "2f87ef44-78ed-4043-86d8-b7db949129bf",
+    "66901319-3c31-40c0-8c6a-5403821566a5"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "usability.general",
+   "rule": "no earlier rule matched",
+   "member_count": 19755,
+   "name": "General usability complaints",
+   "description": "These reviews describe broad annoyances with the app, including advertising, without a consistent specific usability issue.",
+   "example_review_ids": [
+    "9a2cc740-9778-41e9-9bdc-c254d8e5f1e9",
+    "18142ed2-206d-4d2c-afac-fc7033b364ce",
+    "413e49b3-a59b-48fb-a4ac-f1e92f0c0483"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "usability.playback_controls",
+   "rule": "entities include any of ['queue', 'repeat', 'shuffle', 'skip']",
+   "member_count": 9576,
+   "name": "Playback controls behave unexpectedly",
+   "description": "People report missing or unreliable playback controls, including previous track, shuffle, and Smart Shuffle options.",
+   "example_review_ids": [
+    "4c5dee86-808d-4414-932e-d01feeb8a64e",
+    "0e1cc5d7-1d3d-4659-9fff-fcb7f32a7511",
+    "b974cf49-656d-4eae-84cd-431d8d97724c"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "usability.playlists",
+   "rule": "entities include any of ['playlist']",
+   "member_count": 6962,
+   "name": "Playlist management and navigation issues",
+   "description": "People report frustrating playlist controls, unwanted added songs, lost position, and difficulty navigating playlists.",
+   "example_review_ids": [
+    "ae23544a-fa24-4194-8cae-88415b485e89",
+    "cad7932c-d0b1-459f-a7b7-aba1d0d0afe4",
+    "b0967940-64eb-46e6-b52b-c8cbe5eb8a5d"
+   ],
+   "name_source": "model"
+  },
+  {
+   "issue_id": "usability.update_changes",
+   "rule": "entities include any of ['update']",
+   "member_count": 5099,
+   "name": "Unwelcome changes after updates",
+   "description": "People dislike update-related changes to layout and familiar playback or song preview features.",
+   "example_review_ids": [
+    "661f1b7f-8235-41d4-85a4-26ca125d8eee",
+    "92d39e98-5b04-472b-9b11-478588eb34fd",
+    "3978ef02-6e3b-4a38-87f5-3397adc7ed4d"
+   ],
+   "name_source": "model"
+  }
+ ]
+}
