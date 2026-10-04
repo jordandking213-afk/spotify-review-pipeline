@@ -1,0 +1,344 @@
+{
+ "measured": {
+  "run": {
+   "input_file": "cost_100.csv",
+   "input_sha256": "c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e",
+   "input_matches_manifest": true,
+   "input_ids": 100,
+   "unique_texts": 100,
+   "cold_cache_reuses": 0,
+   "workers": 1,
+   "verify_rate": 0.2,
+   "empty_cache_at_start": true,
+   "run_dir": "pilot-100",
+   "pilot_issue_count": 19,
+   "simulated": false,
+   "configs": {
+    "enrich": "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2",
+    "verify": "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2",
+    "group": "gpt-6-luna|effort=none|group-v1|gschema-v1|issues-v1",
+    "memo": "gpt-6-luna|effort=none|memo-v1|mschema-v1"
+   },
+   "cold": {
+    "started_at": "2026-10-04T01:37:09.378+00:00",
+    "status": "memo_failed_checks",
+    "wall_clock_s": 44.952,
+    "stage_wall_clock_s": {
+     "enrich": 19.728,
+     "verify": 3.427,
+     "group": 10.026,
+     "rank": 0.009,
+     "memo": 11.722
+    },
+    "record_counts": {
+     "completed": 100
+    }
+   },
+   "warm": {
+    "started_at": "2026-10-04T01:37:54.364+00:00",
+    "status": "memo_failed_checks",
+    "wall_clock_s": 10.46,
+    "stage_wall_clock_s": {
+     "enrich": 0.017,
+     "verify": 0.007,
+     "group": 0.004,
+     "rank": 0.002,
+     "memo": 10.423
+    },
+    "record_counts": {
+     "completed": 100
+    }
+   }
+  },
+  "records": {
+   "completed": 100
+  },
+  "phases": {
+   "cold": {
+    "wall_clock_s": 44.952,
+    "stage_wall_clock_s": {
+     "enrich": 19.728,
+     "verify": 3.427,
+     "group": 10.026,
+     "rank": 0.009,
+     "memo": 11.722
+    },
+    "api_usd": 0.00444004,
+    "estimated_unresolved_usd": 0.0,
+    "enrich_attempts": 2,
+    "stages": {
+     "enrich": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2"
+      ],
+      "requests": 2,
+      "attempts": 2,
+      "succeeded": 2,
+      "failed": 0,
+      "retries": 0,
+      "max_batch": 50,
+      "review_ids_sent": 100,
+      "units": {
+       "ordinary_input": 2855,
+       "cached_input": 3524,
+       "cache_write": 0,
+       "output": 3480
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.00028550000000000005,
+       "cached_input": 3.524e-05,
+       "cache_write": 0.0,
+       "output": 0.0017399999999999998
+      },
+      "api_usd": 0.0020607399999999997,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 19.468
+     },
+     "group": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|group-v1|gschema-v1|issues-v1"
+      ],
+      "requests": 1,
+      "attempts": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "retries": 0,
+      "max_batch": 43,
+      "review_ids_sent": 43,
+      "units": {
+       "ordinary_input": 2453,
+       "cached_input": 0,
+       "cache_write": 0,
+       "output": 1436
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.0002453,
+       "cached_input": 0.0,
+       "cache_write": 0.0,
+       "output": 0.000718
+      },
+      "api_usd": 0.0009633,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 9.877
+     },
+     "memo": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|memo-v1|mschema-v1"
+      ],
+      "requests": 2,
+      "attempts": 2,
+      "succeeded": 0,
+      "failed": 2,
+      "retries": 1,
+      "max_batch": 16,
+      "review_ids_sent": 0,
+      "units": {
+       "ordinary_input": 4740,
+       "cached_input": 0,
+       "cache_write": 0,
+       "output": 1308
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.00047400000000000003,
+       "cached_input": 0.0,
+       "cache_write": 0.0,
+       "output": 0.000654
+      },
+      "api_usd": 0.001128,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 11.707
+     },
+     "verify": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2"
+      ],
+      "requests": 1,
+      "attempts": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "retries": 0,
+      "max_batch": 20,
+      "review_ids_sent": 20,
+      "units": {
+       "ordinary_input": 1100,
+       "cached_input": 0,
+       "cache_write": 0,
+       "output": 356
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.00011,
+       "cached_input": 0.0,
+       "cache_write": 0.0,
+       "output": 0.000178
+      },
+      "api_usd": 0.000288,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 3.329
+     }
+    }
+   },
+   "warm": {
+    "wall_clock_s": 10.46,
+    "stage_wall_clock_s": {
+     "enrich": 0.017,
+     "verify": 0.007,
+     "group": 0.004,
+     "rank": 0.002,
+     "memo": 10.423
+    },
+    "api_usd": 0.0010544999999999999,
+    "estimated_unresolved_usd": 0.0,
+    "enrich_attempts": 0,
+    "stages": {
+     "memo": {
+      "model": [
+       "gpt-6-luna"
+      ],
+      "provider": [
+       "openai"
+      ],
+      "config": [
+       "gpt-6-luna|effort=none|memo-v1|mschema-v1"
+      ],
+      "requests": 2,
+      "attempts": 2,
+      "succeeded": 0,
+      "failed": 2,
+      "retries": 1,
+      "max_batch": 16,
+      "review_ids_sent": 0,
+      "units": {
+       "ordinary_input": 4740,
+       "cached_input": 0,
+       "cache_write": 0,
+       "output": 1161
+      },
+      "reasoning_tokens": 0,
+      "cost": {
+       "ordinary_input": 0.00047400000000000003,
+       "cached_input": 0.0,
+       "cache_write": 0.0,
+       "output": 0.0005805
+      },
+      "api_usd": 0.0010544999999999999,
+      "unresolved_calls": 0,
+      "estimated_usd": 0.0,
+      "summed_call_seconds": 10.396
+     }
+    }
+   }
+  },
+  "per_1000_inputs_usd": 0.0444004,
+  "per_completed_record_usd": 4.44004e-05,
+  "throughput_reviews_per_s": 2.224595123687489
+ },
+ "projection": {
+  "inputs": {
+   "system_prompt_tokens_per_request": 1762.0,
+   "ordinary_input_tokens_per_review": 28.55,
+   "output_tokens_per_review": 34.8,
+   "seconds_per_enrich_request": 9.734,
+   "verify_usd_per_review": 1.4400000000000001e-05,
+   "pilot_issue_count": 19
+  },
+  "scenarios": {
+   "base": {
+    "enrich_usd": 10.289920703249999,
+    "enrich_no_reuse_usd": 14.038185545649998,
+    "verify_usd": 0.3521022408000001,
+    "verified_reviews": 24209,
+    "group_usd": 0.001521,
+    "memo_usd": 0.001128,
+    "fallback_usd": 0.0,
+    "total_api_usd": 10.64467194405,
+    "enrich_requests": 9684,
+    "exceeds_budget": false,
+    "hours_by_workers": {
+     "1": {
+      "hours": 27.16,
+      "requests_per_minute": 6.2,
+      "tokens_per_minute": 30385,
+      "within_provider_limits": true
+     },
+     "2": {
+      "hours": 13.58,
+      "requests_per_minute": 12.3,
+      "tokens_per_minute": 60770,
+      "within_provider_limits": true
+     },
+     "4": {
+      "hours": 6.79,
+      "requests_per_minute": 24.7,
+      "tokens_per_minute": 121541,
+      "within_provider_limits": true
+     }
+    }
+   },
+   "conservative": {
+    "enrich_usd": 14.943272911125002,
+    "enrich_no_reuse_usd": 20.387666855725005,
+    "verify_usd": 0.4758609492000001,
+    "verified_reviews": 24209,
+    "group_usd": 0.0019773,
+    "memo_usd": 0.0016920000000000001,
+    "fallback_usd": 0.0,
+    "total_api_usd": 15.422803160325001,
+    "enrich_requests": 9684,
+    "exceeds_budget": false,
+    "hours_by_workers": {
+     "1": {
+      "hours": 43.88,
+      "requests_per_minute": 6.2,
+      "tokens_per_minute": 30385,
+      "within_provider_limits": true
+     },
+     "2": {
+      "hours": 21.94,
+      "requests_per_minute": 12.3,
+      "tokens_per_minute": 60770,
+      "within_provider_limits": true
+     },
+     "4": {
+      "hours": 10.97,
+      "requests_per_minute": 24.7,
+      "tokens_per_minute": 121541,
+      "within_provider_limits": true
+     }
+    }
+   }
+  },
+  "worst_case_if_every_request_hit_output_cap_usd": 19.368
+ }
+}

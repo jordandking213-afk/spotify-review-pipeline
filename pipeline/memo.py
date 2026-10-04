@@ -33,8 +33,8 @@ AREAS = {  # the four areas in the assignment's question, plus the two topics ou
     "other (outside the four areas)": ("other",),
 }
 LIMITATIONS = [
-    "Reviews are self-selected, public and historical (May 2022 to November 2023); they are not a representative "
-    "sample of all Spotify users.",
+    "Reviews are self-selected, public and historical (an eighteen-month window of Google Play reviews ending in "
+    "November); they are not a representative sample of all Spotify users.",
     "There is no revenue, plan tier, or confirmed churn data; stated cancellation intent is not observed churn, and "
     "no revenue impact can be inferred.",
     "Labels come from a model; agreement with human labels and with an independent verifier is reported separately "
@@ -141,8 +141,9 @@ def validate_memo(raw_text, complete, claims, extra, pack, known_issues):
         problems += [f"{field}: review id not in evidence {r}" for r in _REVIEW.findall(text) if r not in reviews_ok]
         problems += [f"{field}: unknown issue {i}" for i in _ISSUE.findall(text) if i not in known_issues]
         bare = _REVIEW.sub("", _REF.sub("", text))
-        if re.search(r"\d", bare):
-            problems.append(f"{field}: contains a number not written as a reference: {re.findall(r'.{0,20}\\d.{0,20}', bare)[:2]}")
+        offending = re.findall(r".{0,25}\d.{0,25}", bare)
+        if offending:
+            problems.append(f"{field}: contains a number not written as a reference: {offending[:2]}")
     if not problems:
         if not _REF.search(memo["recommendation"]):
             problems.append("recommendation cites no claim")

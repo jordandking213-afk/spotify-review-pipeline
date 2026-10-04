@@ -78,7 +78,7 @@ def validate_names(raw_text, complete, pack):
     accepted, problems = {}, []
     for item in items:
         allowed = {e["review_id"] for e in pack[item["id"]]["examples"]}
-        ok = (isinstance(item["name"], str) and 0 < len(item["name"]) <= 60
+        ok = (isinstance(item["name"], str) and 0 < len(item["name"]) <= 60 and not re.search(r"\d", item["name"])
               and isinstance(item["description"], str) and 0 < len(item["description"]) <= 200
               and not re.search(r"\d", item["description"])
               and isinstance(item["examples"], list) and 1 <= len(item["examples"]) <= 3

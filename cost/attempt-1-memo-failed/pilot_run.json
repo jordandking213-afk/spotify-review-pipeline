@@ -1,0 +1,50 @@
+{
+ "input_file": "cost_100.csv",
+ "input_sha256": "c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e",
+ "input_matches_manifest": true,
+ "input_ids": 100,
+ "unique_texts": 100,
+ "cold_cache_reuses": 0,
+ "workers": 1,
+ "verify_rate": 0.2,
+ "empty_cache_at_start": true,
+ "run_dir": "pilot-100",
+ "pilot_issue_count": 19,
+ "simulated": false,
+ "configs": {
+  "enrich": "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2",
+  "verify": "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2",
+  "group": "gpt-6-luna|effort=none|group-v1|gschema-v1|issues-v1",
+  "memo": "gpt-6-luna|effort=none|memo-v1|mschema-v1"
+ },
+ "cold": {
+  "started_at": "2026-10-04T01:37:09.378+00:00",
+  "status": "memo_failed_checks",
+  "wall_clock_s": 44.952,
+  "stage_wall_clock_s": {
+   "enrich": 19.728,
+   "verify": 3.427,
+   "group": 10.026,
+   "rank": 0.009,
+   "memo": 11.722
+  },
+  "record_counts": {
+   "completed": 100
+  }
+ },
+ "warm": {
+  "started_at": "2026-10-04T01:37:54.364+00:00",
+  "status": "memo_failed_checks",
+  "wall_clock_s": 10.46,
+  "stage_wall_clock_s": {
+   "enrich": 0.017,
+   "verify": 0.007,
+   "group": 0.004,
+   "rank": 0.002,
+   "memo": 10.423
+  },
+  "record_counts": {
+   "completed": 100
+  }
+ }
+}

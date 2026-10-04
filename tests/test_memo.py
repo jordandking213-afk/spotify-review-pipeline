@@ -97,5 +97,41 @@ class MemoTests(unittest.TestCase):
             self.assertIsNone(validate_memo(json.dumps(memo), True, claims, extra, pack, {"a.b"})[0], bad)
 
 
+class MemoRegressionTests(unittest.TestCase):
+    """Pilot attempt 1 failed because fixed text handed to the memo model contained digits."""
+
+    def test_fixed_limitations_text_is_digit_free(self):
+        from pipeline.memo import LIMITATIONS
+        self.assertFalse([t for t in LIMITATIONS if re.search(r"\d", t)])
+
+    def test_memo_message_has_digits_only_in_values_and_review_ids(self):
+        tmp = tempfile.TemporaryDirectory()
+        d = Path(tmp.name)
+        q = dict(sleep=lambda s: None, log=lambda *a: None)
+        write_fixture(d / "f.csv")
+        Enricher(d / "f.csv", d / "run", FakeClient(), **q).run()
+        Grouper(d / "run", FakeClient(), **q).run()
+        rank.run(d / "run", log=lambda *a: None)
+        client = FakeClient()
+        MemoWriter(d / "run", client, **q).run()
+        _, message = client.messages[-1]
+        for line in message.splitlines():
+            if re.match(r"^[CX]\d+ = ", line) or "[review:" in line:
+                continue
+            self.assertFalse(re.search(r"\d", line), line)
+        tmp.cleanup()
+
+    def test_error_message_shows_offending_text(self):
+        claims = [{"claim_id": "C1", "issue_id": "a.b", "metric": "complaint_count", "value": "5"}]
+        pack = {"a.b": {"examples": [{"review_id": "r1", "quote": "q"}]}}
+        memo = {"recommendation": "Fix `a.b` first with {C1} complaints since twenty twenty three.",
+                "supporting_evidence": "Shown by {C1} reports such as [review:r1] here.",
+                "alternatives": "Other areas are lower, as the totals show clearly.",
+                "sensitivity": "No change to the top issue in the sensitivity check.",
+                "limitations": "Reviews from May 2022 onward are self-selected."}
+        _, problems = validate_memo(json.dumps(memo), True, claims, [], pack, {"a.b"})
+        self.assertTrue(any("2022" in p for p in problems), problems)
+
+
 if __name__ == "__main__":
     unittest.main()

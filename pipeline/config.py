@@ -29,17 +29,17 @@ VERIFY_RATE_PILOT = 0.20    # declared sample for the 100-review pilot (Jordan, 
 VERIFY_SEED = "verify-v1"   # sample = reviews whose SHA-256(seed:review_id) falls below the rate; reproducible
 
 # Grouping role: code assigns issues; the model only names them from a bounded evidence pack.
-GROUP_PROMPT_FILE = PROMPTS / "group_v1.system.md"
-GROUP_SCHEMA_FILE = PROMPTS / "group_v1.schema.json"
-GROUP_CONFIG = f"{ENRICH_MODEL}|effort=none|group-v1|gschema-v1|issues-v1"
+GROUP_PROMPT_FILE = PROMPTS / "group_v2.system.md"
+GROUP_SCHEMA_FILE = PROMPTS / "group_v2.schema.json"
+GROUP_CONFIG = f"{ENRICH_MODEL}|effort=none|group-v2|gschema-v2|issues-v1"   # v2: names must be digit-free
 GROUP_EXAMPLES_PER_ISSUE = 6
 GROUP_QUOTE_CHARS = 200
 
 # Memo role: writes from saved aggregates and a bounded evidence pack; cannot write numbers itself.
 MEMO_EFFORT = "none"
-MEMO_PROMPT_FILE = PROMPTS / "memo_v1.system.md"
-MEMO_SCHEMA_FILE = PROMPTS / "memo_v1.schema.json"
-MEMO_CONFIG = f"{ENRICH_MODEL}|effort={MEMO_EFFORT}|memo-v1|mschema-v1"
+MEMO_PROMPT_FILE = PROMPTS / "memo_v2.system.md"
+MEMO_SCHEMA_FILE = PROMPTS / "memo_v2.schema.json"
+MEMO_CONFIG = f"{ENRICH_MODEL}|effort={MEMO_EFFORT}|memo-v2|mschema-v2"   # v2: explicit requirements (pilot attempt 1)
 
 # Bounds on every enrichment request.
 MAX_BATCH = 50              # contract limit: at most 50 reviews per request

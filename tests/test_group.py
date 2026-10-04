@@ -86,5 +86,15 @@ class GroupTests(unittest.TestCase):
         self.assertEqual(before, self.membership(), "identical membership")
 
 
+class GroupNameDigitTest(unittest.TestCase):
+    def test_issue_names_with_digits_are_rejected(self):
+        from pipeline.group import validate_names
+        pack = {"a.b": {"examples": [{"review_id": "r1", "quote": "q"}]}}
+        bad = json.dumps({"issues": [{"id": "a.b", "name": "Top 10 crashes", "description": "Crashes.", "examples": ["r1"]}]})
+        good = json.dumps({"issues": [{"id": "a.b", "name": "Crashes", "description": "Crashes.", "examples": ["r1"]}]})
+        self.assertEqual(validate_names(bad, True, pack)[0], {})
+        self.assertIn("a.b", validate_names(good, True, pack)[0])
+
+
 if __name__ == "__main__":
     unittest.main()
