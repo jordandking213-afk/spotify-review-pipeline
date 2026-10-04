@@ -186,10 +186,10 @@ def usd(x):
 def render(m, p, rates, a, evidence, rates_path):
     run, cold, warm = m["run"], m["phases"]["cold"], m["phases"]["warm"]
     sim = run.get("simulated")
-    L = [f"# 100-review cost and runtime report{' — SIMULATED REHEARSAL (fake model, not real costs)' if sim else ''}",
+    L = [f"# {run['input_ids']}-review cost and runtime report ({run['input_file']}){' — SIMULATED REHEARSAL (fake model, not real costs)' if sim else ''}",
          "", f"Recomputed offline from `{evidence.relative_to(REPO) if evidence.is_relative_to(REPO) else evidence.name}/pilot_calls.jsonl` and `{rates_path.name}` "
          f"by `python3 cost/calculator.py` (no API key, no model calls).", "",
-         "## Measured: 100-review pilot", "",
+         f"## Measured: {run['input_ids']}-review run", "",
          f"- Input: `{run['input_file']}` SHA-256 `{run['input_sha256']}` "
          f"({'matches' if run.get('input_matches_manifest') else 'DOES NOT match'} manifest); {run['input_ids']} IDs.",
          f"- Records: {m['records']}. Unique texts: {run['unique_texts']}. Result-cache reuse in cold run: "
@@ -271,7 +271,8 @@ def replay(evidence, rates_path, assumptions_path, out=None):
 
 
 # ---------------------------------------------------------------------------------------------------- pilot
-def pilot(client_name, overwrite=False, evidence=None, run_dir=None):
+def pilot(client_name, overwrite=False, evidence=None, run_dir=None, source_name="cost_100.csv", workers=1,
+          verify_rate=None):
     sys.path.insert(0, str(REPO))
     from pipeline import config
     from pipeline.__main__ import make_client
@@ -280,11 +281,12 @@ def pilot(client_name, overwrite=False, evidence=None, run_dir=None):
     from pipeline.store import Store
 
     dataset = REPO.parent / "Final Assignment - Spotify Reviews Dataset"
-    source = dataset / "cost_100.csv"
+    source = dataset / source_name
     manifest = json.loads((dataset / "manifest.json").read_text())
     digest = hashlib.sha256(source.read_bytes()).hexdigest()
-    if digest != manifest["files"]["cost_100.csv"]["sha256"]:
-        raise SystemExit("cost_100.csv does not match the manifest checksum; refusing to run the pilot.")
+    if digest != manifest["files"][source_name]["sha256"]:
+        raise SystemExit(f"{source_name} does not match the manifest checksum; refusing to run.")
+    verify_rate = config.VERIFY_RATE_PILOT if verify_rate is None else verify_rate
     evidence = Path(evidence or (HERE if client_name == "openai" else HERE / "rehearsal-fake"))
     run_dir = Path(run_dir or config.RUNS / ("pilot-100" if client_name == "openai" else "pilot-100-fake"))
     if run_dir.exists() and not overwrite:
@@ -302,7 +304,7 @@ def pilot(client_name, overwrite=False, evidence=None, run_dir=None):
     phases = {}
     for phase in ("cold", "warm"):
         start = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
-        summary = run_pipeline(source, run_dir, clients(), workers=1, verify_rate=config.VERIFY_RATE_PILOT)
+        summary = run_pipeline(source, run_dir, clients(), workers=workers, verify_rate=verify_rate)
         phases[phase] = {"started_at": start, "summary": summary}
 
     store = Store(run_dir / "state.sqlite")
@@ -328,10 +330,10 @@ def pilot(client_name, overwrite=False, evidence=None, run_dir=None):
                         c["output_tokens"], c["reasoning_tokens"], round(c["duration_s"], 3), c["simulated"]])
     texts = [row["review_text"] for row in csv.DictReader(open(source, encoding="utf-8-sig", newline=""))]
     issues = json.loads((run_dir / "group" / "issues.json").read_text())["issues"]
-    run_info = {"input_file": "cost_100.csv", "input_sha256": digest, "input_matches_manifest": True,
+    run_info = {"input_file": source_name, "input_sha256": digest, "input_matches_manifest": True,
                 "input_ids": len(texts), "unique_texts": len({t for t in texts if t.strip()}),
-                "cold_cache_reuses": sum(1 for r in records if r["cache_source_id"]), "workers": 1,
-                "verify_rate": config.VERIFY_RATE_PILOT, "empty_cache_at_start": True, "run_dir": run_dir.name,
+                "cold_cache_reuses": sum(1 for r in records if r["cache_source_id"]), "workers": workers,
+                "verify_rate": verify_rate, "empty_cache_at_start": True, "run_dir": run_dir.name,
                 "pilot_issue_count": len(issues), "simulated": client_name != "openai",
                 "configs": phases["cold"]["summary"]["configs"]}
     for phase, info in phases.items():
@@ -345,7 +347,9 @@ def pilot(client_name, overwrite=False, evidence=None, run_dir=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("mode", nargs="?", choices=["replay", "pilot"], default="replay")
+    parser.add_argument("mode", nargs="?", choices=["replay", "pilot", "checkpoint"], default="replay")
+    parser.add_argument("--input", default="checkpoint_500.csv", help="checkpoint mode: dataset file to measure")
+    parser.add_argument("--workers", type=int, default=2, help="checkpoint mode: worker count")
     parser.add_argument("--evidence", type=Path, default=HERE, help="folder with pilot_calls.jsonl etc.")
     parser.add_argument("--rates", type=Path, default=HERE / "rates.csv")
     parser.add_argument("--assumptions", type=Path, default=HERE / "assumptions.json")
@@ -354,7 +358,15 @@ def main():
     parser.add_argument("--confirm-paid", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
-    if args.mode == "pilot":
+    if args.mode == "checkpoint":
+        if args.client == "openai" and not args.confirm_paid:
+            raise SystemExit("A checkpoint run makes paid API calls. Re-run with --confirm-paid to proceed.")
+        sys.path.insert(0, str(REPO))
+        from pipeline import config as pc
+        name = Path(args.input).stem + (f"-{args.workers}w" if args.client == "openai" else "-fake")
+        m, p, out = pilot(args.client, overwrite=args.overwrite, evidence=HERE / name, run_dir=pc.RUNS / name,
+                          source_name=args.input, workers=args.workers, verify_rate=pc.VERIFY_RATE)
+    elif args.mode == "pilot":
         if args.client == "openai" and not args.confirm_paid:
             raise SystemExit("The pilot makes paid API calls. Re-run with --confirm-paid to proceed.")
         m, p, out = pilot(args.client, overwrite=args.overwrite)

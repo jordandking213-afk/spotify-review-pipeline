@@ -1,0 +1,50 @@
+{
+ "input_file": "checkpoint_500.csv",
+ "input_sha256": "a94e31663ee7b7eaa77e23b7a8425b530cc0c866ed5e714953172a0afef6a12f",
+ "input_matches_manifest": true,
+ "input_ids": 500,
+ "unique_texts": 479,
+ "cold_cache_reuses": 21,
+ "workers": 2,
+ "verify_rate": 0.05,
+ "empty_cache_at_start": true,
+ "run_dir": "checkpoint_500-2w",
+ "pilot_issue_count": 24,
+ "simulated": false,
+ "configs": {
+  "enrich": "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2",
+  "verify": "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2",
+  "group": "gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1",
+  "memo": "gpt-6-luna|effort=none|memo-v2|mschema-v2"
+ },
+ "cold": {
+  "started_at": "2026-10-04T01:44:45.067+00:00",
+  "status": "complete",
+  "wall_clock_s": 63.966,
+  "stage_wall_clock_s": {
+   "enrich": 44.229,
+   "verify": 3.291,
+   "group": 11.581,
+   "rank": 0.012,
+   "memo": 4.849
+  },
+  "record_counts": {
+   "completed": 500
+  }
+ },
+ "warm": {
+  "started_at": "2026-10-04T01:45:49.059+00:00",
+  "status": "complete",
+  "wall_clock_s": 0.059,
+  "stage_wall_clock_s": {
+   "enrich": 0.024,
+   "verify": 0.018,
+   "group": 0.006,
+   "rank": 0.005,
+   "memo": 0.005
+  },
+  "record_counts": {
+   "completed": 500
+  }
+ }
+}

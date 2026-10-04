@@ -1,0 +1,14 @@
+request_id,pilot_phase,role,model,label_config,outcome,usage_known,input_tokens,cached_input_tokens,cache_write_tokens,ordinary_input_tokens,output_tokens,reasoning_tokens,duration_s,simulated
+resp_0561262e420a6403016ac1af8d888887d0a855266bfd8c2b57,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3142,1762,0,1380,1742,0,8.859,0
+resp_0ab3712b4305d3e9016ac1af8d871487d09db6333370d108ce,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3237,1762,0,1475,1752,0,8.977,0
+resp_0611a594da16880a016ac1af9630f487d09674a62f5a8a7042,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3076,1762,0,1314,1730,0,8.741,0
+resp_06dd659d0bd3a61b016ac1af964e0887d09fab606530ea7eb2,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3052,1762,0,1290,1776,0,8.914,0
+resp_01e2ce1eeb38e071016ac1af9efb2487d0bf2667137635307e,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3280,1762,0,1518,1739,0,8.774,0
+resp_0764732ffaf22867016ac1af9f3b7887d08dcc720fda3f408d,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3098,1762,0,1336,1740,0,8.827,0
+resp_0b65c36b68aa3f7a016ac1afa8005c87d095218accd9702962,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3099,1762,0,1337,1771,0,8.72,0
+resp_0ed29ec4fba413a5016ac1afa8533c87d09b506e2c9c613530,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3130,1762,0,1368,1757,0,9.166,0
+resp_0e9844a17c29f1a7016ac1afb0823c87d0a82bbc0539ee2da1,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,3260,1762,0,1498,1737,0,9.038,0
+resp_079a6d2655b992b7016ac1afb1476087d0bfa981e6b979adb1,cold,enrich,gpt-6-luna,gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2,succeeded,1,2559,1762,0,797,1021,0,5.677,0
+resp_0e70015f6743ad63016ac1afb9945c87d0946f4e5378b517be,cold,verify,gpt-6-luna,gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2,succeeded,1,1357,0,0,1357,443,0,3.239,0
+resp_0e67b44c2b278f6d016ac1afbcd94c87d09abd95bd4f53ccec,cold,group,gpt-6-luna,gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1,succeeded,1,4933,0,0,4933,2190,0,11.555,0
+resp_0bf041c29da6e15e016ac1afc86f9087d08faf7e844adeba75,cold,memo,gpt-6-luna,gpt-6-luna|effort=none|memo-v2|mschema-v2,succeeded,1,2661,0,0,2661,538,0,4.835,0
