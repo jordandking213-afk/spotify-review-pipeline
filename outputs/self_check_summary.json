@@ -1,0 +1,32 @@
+{
+ "audit_version": "a5-audit-v1",
+ "status": "review_required",
+ "working_coverage_point_candidate": 0.9999,
+ "coverage": {
+  "accounted_fraction": 1.0,
+  "duplicate_ids": 0,
+  "expected": 660622,
+  "invalid_or_unresolved": 0,
+  "labelable": 660609,
+  "labelable_completion_fraction": 0.999894,
+  "missing": 0,
+  "quarantined": 83,
+  "received_lines": 660622,
+  "unique_expected_ids": 660622,
+  "valid_cache_reuses": 176411,
+  "valid_completed": 660539,
+  "valid_completion_fraction": 0.999874
+ },
+ "issue_counts": {
+  "unfinished_classification": 1
+ },
+ "reported_calls": 11164,
+ "reported_input_tokens": 35431699,
+ "reported_output_tokens": 18098814,
+ "limits": [
+  "Artifacts do not prove actual model execution, authorship, cost, or independent verification.",
+  "Exact quote membership does not prove that the quote supports the label.",
+  "Claims export checks numbers; a person must check that all memo claims are represented.",
+  "Benchmark agreement is diagnostic; final 4/3/3 grades require rubric review."
+ ]
+}

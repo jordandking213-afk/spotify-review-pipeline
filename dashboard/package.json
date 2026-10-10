@@ -1,0 +1,14 @@
+{
+  "name": "spotify-review-dashboard",
+  "private": true,
+  "type": "module",
+  "description": "Dashboard + backend for the Spotify review pipeline: serves processed results from a Neon Postgres database",
+  "scripts": {
+    "load": "node scripts/load.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "pg": "^8.13.0"
+  },
+  "engines": { "node": "22.x" }
+}

@@ -1,0 +1,448 @@
+{
+ "input_sha256": "fceb910f276cb022c48324cfed8b618925140d6ee4d8e914b5247ad1a94c8a12",
+ "claims": [
+  {
+   "claim_id": "C1",
+   "issue_id": "other.general",
+   "metric": "complaint_count",
+   "value": "90127"
+  },
+  {
+   "claim_id": "C2",
+   "issue_id": "other.general",
+   "metric": "mean_severity",
+   "value": "1.983579"
+  },
+  {
+   "claim_id": "C3",
+   "issue_id": "other.general",
+   "metric": "priority_score",
+   "value": "178774"
+  },
+  {
+   "claim_id": "C4",
+   "issue_id": "playback.general",
+   "metric": "complaint_count",
+   "value": "35331"
+  },
+  {
+   "claim_id": "C5",
+   "issue_id": "playback.general",
+   "metric": "mean_severity",
+   "value": "3.336843"
+  },
+  {
+   "claim_id": "C6",
+   "issue_id": "playback.general",
+   "metric": "priority_score",
+   "value": "117894"
+  },
+  {
+   "claim_id": "C7",
+   "issue_id": "billing.paywall_named_feature",
+   "metric": "complaint_count",
+   "value": "22790"
+  },
+  {
+   "claim_id": "C8",
+   "issue_id": "billing.paywall_named_feature",
+   "metric": "mean_severity",
+   "value": "3.014831"
+  },
+  {
+   "claim_id": "C9",
+   "issue_id": "billing.paywall_named_feature",
+   "metric": "priority_score",
+   "value": "68708"
+  },
+  {
+   "claim_id": "C10",
+   "issue_id": "usability.ads",
+   "metric": "complaint_count",
+   "value": "27830"
+  },
+  {
+   "claim_id": "C11",
+   "issue_id": "usability.ads",
+   "metric": "mean_severity",
+   "value": "2.308516"
+  },
+  {
+   "claim_id": "C12",
+   "issue_id": "usability.ads",
+   "metric": "priority_score",
+   "value": "64246"
+  },
+  {
+   "claim_id": "C13",
+   "issue_id": "usability.general",
+   "metric": "complaint_count",
+   "value": "19755"
+  },
+  {
+   "claim_id": "C14",
+   "issue_id": "usability.general",
+   "metric": "mean_severity",
+   "value": "2.498659"
+  },
+  {
+   "claim_id": "C15",
+   "issue_id": "usability.general",
+   "metric": "priority_score",
+   "value": "49361"
+  },
+  {
+   "claim_id": "C16",
+   "issue_id": "billing.premium_other",
+   "metric": "complaint_count",
+   "value": "16507"
+  },
+  {
+   "claim_id": "C17",
+   "issue_id": "billing.premium_other",
+   "metric": "mean_severity",
+   "value": "2.463803"
+  },
+  {
+   "claim_id": "C18",
+   "issue_id": "billing.premium_other",
+   "metric": "priority_score",
+   "value": "40670"
+  },
+  {
+   "claim_id": "C19",
+   "issue_id": "usability.playback_controls",
+   "metric": "complaint_count",
+   "value": "9576"
+  },
+  {
+   "claim_id": "C20",
+   "issue_id": "usability.playback_controls",
+   "metric": "mean_severity",
+   "value": "2.985589"
+  },
+  {
+   "claim_id": "C21",
+   "issue_id": "usability.playback_controls",
+   "metric": "priority_score",
+   "value": "28590"
+  }
+ ],
+ "other_quantities": [
+  {
+   "id": "X1",
+   "label": "access: complaints",
+   "value": "9906",
+   "formula": "sum of complaint_count over the area's issues"
+  },
+  {
+   "id": "X2",
+   "label": "access: severity sum (priority)",
+   "value": "38464",
+   "formula": "sum of severity_sum over the area's issues"
+  },
+  {
+   "id": "X3",
+   "label": "access: mean severity",
+   "value": "3.882899",
+   "formula": "area severity sum / area complaints"
+  },
+  {
+   "id": "X4",
+   "label": "usability: complaints",
+   "value": "70347",
+   "formula": "sum of complaint_count over the area's issues"
+  },
+  {
+   "id": "X5",
+   "label": "usability: severity sum (priority)",
+   "value": "179800",
+   "formula": "sum of severity_sum over the area's issues"
+  },
+  {
+   "id": "X6",
+   "label": "usability: mean severity",
+   "value": "2.555901",
+   "formula": "area severity sum / area complaints"
+  },
+  {
+   "id": "X7",
+   "label": "playback: complaints",
+   "value": "47946",
+   "formula": "sum of complaint_count over the area's issues"
+  },
+  {
+   "id": "X8",
+   "label": "playback: severity sum (priority)",
+   "value": "160236",
+   "formula": "sum of severity_sum over the area's issues"
+  },
+  {
+   "id": "X9",
+   "label": "playback: mean severity",
+   "value": "3.342010",
+   "formula": "area severity sum / area complaints"
+  },
+  {
+   "id": "X10",
+   "label": "billing/support: complaints",
+   "value": "54948",
+   "formula": "sum of complaint_count over the area's issues"
+  },
+  {
+   "id": "X11",
+   "label": "billing/support: severity sum (priority)",
+   "value": "149052",
+   "formula": "sum of severity_sum over the area's issues"
+  },
+  {
+   "id": "X12",
+   "label": "billing/support: mean severity",
+   "value": "2.712601",
+   "formula": "area severity sum / area complaints"
+  },
+  {
+   "id": "X13",
+   "label": "catalog (outside the four areas): complaints",
+   "value": "17349",
+   "formula": "sum of complaint_count over the area's issues"
+  },
+  {
+   "id": "X14",
+   "label": "catalog (outside the four areas): severity sum (priority)",
+   "value": "49733",
+   "formula": "sum of severity_sum over the area's issues"
+  },
+  {
+   "id": "X15",
+   "label": "catalog (outside the four areas): mean severity",
+   "value": "2.866621",
+   "formula": "area severity sum / area complaints"
+  },
+  {
+   "id": "X16",
+   "label": "other (outside the four areas): complaints",
+   "value": "90127",
+   "formula": "sum of complaint_count over the area's issues"
+  },
+  {
+   "id": "X17",
+   "label": "other (outside the four areas): severity sum (priority)",
+   "value": "178774",
+   "formula": "sum of severity_sum over the area's issues"
+  },
+  {
+   "id": "X18",
+   "label": "other (outside the four areas): mean severity",
+   "value": "1.983579",
+   "formula": "area severity sum / area complaints"
+  },
+  {
+   "id": "X19",
+   "label": "source reviews",
+   "value": "660622",
+   "formula": "rows in the input file"
+  },
+  {
+   "id": "X20",
+   "label": "completed classifications",
+   "value": "660539",
+   "formula": "records with status completed"
+  },
+  {
+   "id": "X21",
+   "label": "quarantined reviews",
+   "value": "83",
+   "formula": "records with status quarantined (with reasons)"
+  },
+  {
+   "id": "X22",
+   "label": "unclassified reviews still pending",
+   "value": "0",
+   "formula": "records with status pending"
+  },
+  {
+   "id": "X23",
+   "label": "paywall reviews re-scored in sensitivity check",
+   "value": "25738",
+   "formula": "paywall_named_feature = true and severity 3"
+  },
+  {
+   "id": "X24",
+   "label": "other.general: priority score if paywall complaints were severity two",
+   "value": "178766",
+   "formula": "ranking_paywall_sev2.csv"
+  },
+  {
+   "id": "X25",
+   "label": "playback.general: priority score if paywall complaints were severity two",
+   "value": "117834",
+   "formula": "ranking_paywall_sev2.csv"
+  },
+  {
+   "id": "X26",
+   "label": "billing.paywall_named_feature: priority score if paywall complaints were severity two",
+   "value": "46289",
+   "formula": "ranking_paywall_sev2.csv"
+  },
+  {
+   "id": "X27",
+   "label": "usability.ads: priority score if paywall complaints were severity two",
+   "value": "63596",
+   "formula": "ranking_paywall_sev2.csv"
+  },
+  {
+   "id": "X28",
+   "label": "usability.general: priority score if paywall complaints were severity two",
+   "value": "49166",
+   "formula": "ranking_paywall_sev2.csv"
+  },
+  {
+   "id": "X29",
+   "label": "billing.premium_other: priority score if paywall complaints were severity two",
+   "value": "40670",
+   "formula": "ranking_paywall_sev2.csv"
+  },
+  {
+   "id": "X30",
+   "label": "usability.playback_controls: priority score if paywall complaints were severity two",
+   "value": "27542",
+   "formula": "ranking_paywall_sev2.csv"
+  }
+ ],
+ "evidence": {
+  "other.general": {
+   "name": "General dissatisfaction",
+   "description": "These reviews express broad dissatisfaction with Spotify or its updates without identifying a specific app problem.",
+   "examples": [
+    {
+     "review_id": "e728eefe-686d-45a7-bb23-cc08bee1f11d",
+     "quote": "The updates are getting worse."
+    },
+    {
+     "review_id": "6e14ba8c-b058-4564-a32c-8d34ef3caf24",
+     "quote": "The new updates are making spotify even more trash:("
+    },
+    {
+     "review_id": "b1b3e5a2-4ac6-419e-951c-365402f9d00f",
+     "quote": "I might as well just totally discontinue usage of this service."
+    }
+   ]
+  },
+  "playback.general": {
+   "name": "Music stops or plays incorrectly",
+   "description": "Music may stop unexpectedly, restart, report a false offline status, or fail to play the intended song.",
+   "examples": [
+    {
+     "review_id": "98333d3d-0049-4711-a8c9-8daf98e04479",
+     "quote": "it keep stopping!!"
+    },
+    {
+     "review_id": "07aa9843-384f-408a-9570-f11a268d6ba3",
+     "quote": "Getting msg since last update that I am offline when I am not."
+    },
+    {
+     "review_id": "d0933791-1bc0-4f19-8ce4-420c763e7886",
+     "quote": "The only problem is when I'll be listening to music and the song will just stop and the I check it out and it starts over the whole song"
+    }
+   ]
+  },
+  "billing.paywall_named_feature": {
+   "name": "Features restricted to Premium",
+   "description": "Specific listening and playback features, including lyrics and repeat, are unavailable or limited without Premium.",
+   "examples": [
+    {
+     "review_id": "df5fc1d8-ac1e-4ae4-8519-5ec454b60f82",
+     "quote": "Even the basic features (like listening to specific parts in a song) are taken away."
+    },
+    {
+     "review_id": "98fee45a-083f-4315-a7f5-3a66f9bd22fd",
+     "quote": "woooow can't even put a playlist on repeat anymore"
+    },
+    {
+     "review_id": "78f96555-5c73-4caf-b033-0a5e57026db5",
+     "quote": "Very useless cant even repeat a song"
+    }
+   ]
+  },
+  "usability.ads": {
+   "name": "Too many advertisements",
+   "description": "People find the volume or repetition of advertisements disruptive, including during podcasts.",
+   "examples": [
+    {
+     "review_id": "90e3e8b8-0f53-432a-bd5b-a7f0108b4b5a",
+     "quote": "paying for premium and there's mad ads all throughout podcast."
+    },
+    {
+     "review_id": "882cec80-7be0-48a1-b451-6cae6fb81114",
+     "quote": "It is a great app my only problem is ads that repeat each other"
+    },
+    {
+     "review_id": "81e427bb-74ad-480f-a447-b65127073a06",
+     "quote": "Everything is good except loads of advertisement."
+    }
+   ]
+  },
+  "usability.general": {
+   "name": "General usability complaints",
+   "description": "These reviews describe broad annoyances with the app, including advertising, without a consistent specific usability issue.",
+   "examples": [
+    {
+     "review_id": "9a2cc740-9778-41e9-9bdc-c254d8e5f1e9",
+     "quote": "Fix blend, doesn't work with links given and all it does is reroute to the app without opening blend."
+    },
+    {
+     "review_id": "18142ed2-206d-4d2c-afac-fc7033b364ce",
+     "quote": "It's a good app but I get the same odd 'ah-flack' add all the time to the point it's so annoying that I sorta wanna delete/uninstall the app"
+    },
+    {
+     "review_id": "413e49b3-a59b-48fb-a4ac-f1e92f0c0483",
+     "quote": "Extra ordinary app but one problem is add"
+    }
+   ]
+  },
+  "billing.premium_other": {
+   "name": "Pressure to get Premium",
+   "description": "People feel pushed toward Premium because ads and limits make the free experience difficult to use.",
+   "examples": [
+    {
+     "review_id": "58d1f7a9-3c68-4f34-9018-bad8d0865826",
+     "quote": "Spotify is forcing us to get premium."
+    },
+    {
+     "review_id": "5a9cb840-692c-4dc5-a0fd-926fe8d46e1e",
+     "quote": "Premium for everything!!!"
+    },
+    {
+     "review_id": "6c31bd32-2b09-4ba5-aa46-3e4614e8b955",
+     "quote": "Full of Ads ...can't do anything without buying premium membership"
+    }
+   ]
+  },
+  "usability.playback_controls": {
+   "name": "Playback controls behave unexpectedly",
+   "description": "People report missing or unreliable playback controls, including previous track, shuffle, and Smart Shuffle options.",
+   "examples": [
+    {
+     "review_id": "4c5dee86-808d-4414-932e-d01feeb8a64e",
+     "quote": "Not able to select previous song."
+    },
+    {
+     "review_id": "0e1cc5d7-1d3d-4659-9fff-fcb7f32a7511",
+     "quote": "Because it literally doesn't work, it's the same order every time and sometimes just the default order of the Playlist."
+    },
+    {
+     "review_id": "b974cf49-656d-4eae-84cd-431d8d97724c",
+     "quote": "Please give me the option to turn OFF Smart Shuffle."
+    }
+   ]
+  }
+ },
+ "limitations_given": [
+  "Reviews are self-selected, public and historical (an eighteen-month window of Google Play reviews ending in November); they are not a representative sample of all Spotify users.",
+  "There is no revenue, plan tier, or confirmed churn data; stated cancellation intent is not observed churn, and no revenue impact can be inferred.",
+  "Labels come from a model; agreement with human labels and with an independent verifier is reported separately and is imperfect.",
+  "Issue groups come from fixed code rules on matched feature words, so a broad catch-all group can hide several distinct problems.",
+  "Reviews that were quarantined or left unclassified are excluded from the ranking."
+ ]
+}

@@ -10,7 +10,10 @@ them into a product recommendation in which every number traces back to saved ca
 117,894; 35,331 complaints, mean severity 3.34). Usability has the largest area total (179,800) but is spread across
 several smaller issues. The issue-level decision rule was set after the full run, when Jordan's inspection of memo-v3 showed the two levels disagree; under the area-level reading of the total-severity criterion declared before the run, the priority would be usability (area severity sum 179,800 vs playback's 160,236). See the [decision memo](memo.md).
 
-**Grader entry points:** [rubric map](#rubric-map) · [results](#results-summary) · [decision memo](#decision-memo) ·
+**Live dashboard:** **https://spotify-review-dashboard-sigma.vercel.app** — public, no login. It reads the processed
+results from a Neon Postgres database through a backend API ([details](#dashboard-backend-and-database)).
+
+**Grader entry points:** [dashboard](https://spotify-review-dashboard-sigma.vercel.app) · [rubric map](#rubric-map) · [results](#results-summary) · [decision memo](#decision-memo) ·
 [grading export](grading/) · [cost calculator](cost/README.md) · [golden evaluation](evals/golden/results_v1/summary.md)
 
 ---
@@ -31,6 +34,7 @@ several smaller issues. The issue-level decision rule was set after the full run
 | **Working result (3)** | |
 | Full ingestion, coverage, classification | [grading/ingestion.json](grading/ingestion.json); [course self-check](#course-self-check): all 660,622 IDs accounted for, coverage point 0.9999 |
 | Runnable staged program, bounded calls, saved handoffs, resume | [Commands](#setup-and-commands); [interruption/resume evidence](#interruption-and-resume) |
+| Usable deployed dashboard backed by a database | [Dashboard, backend and database](#dashboard-backend-and-database): live URL, database of all 660,622 processed records, backend API, AI-generated recommendation with cited numbers and evidence, live consistency check |
 | Reproducible baseline ranking, grounded final output | [Ranking](#ranking); `python3 -m pipeline.rerank --grading grading` (re-groups and re-ranks with no model); [memo](#decision-memo) |
 | Enriched table, quarantine log, ingestion report, manifest, run record | [outputs/](#outputs) |
 
@@ -87,6 +91,11 @@ flowchart LR
     D --> H[(disagreements)]
     G --> I[(memo.md, claims.csv)]
     B & C & E & F --> S[(state.sqlite:<br/>records, calls, checkpoints)]
+    S --> X[grading/ + outputs/ exports<br/>CODE]
+    X --> L[load.mjs<br/>CODE]
+    L --> DB[(Neon Postgres<br/>records, rankings, issues,<br/>memo, claims, metrics)]
+    DB -->|read-only role| API[Vercel backend /api/*<br/>CODE, no model calls]
+    API --> UI[Dashboard<br/>spotify-review-dashboard-sigma.vercel.app]
 ```
 
 | Stage | Owner | Input → output | Failure behaviour / stop condition |
@@ -109,6 +118,38 @@ I used the model only when it requires reading and understanding messy human lan
 ### Is adaptive tool use worth it? (Jordan, own words)
 
 I would say the adaptive tool use would not add enough value. A fixed sequence in code is cheaper and easier to cap because every review needs the same steps. Given the full run cost $10.94 against a $11.07 estimate, it was helpful to keep cost in check as the $45 limit could be checked before every request. Giving the model more autonomy could make cost more variable and harder to reproduce and audit. While a helpful step would have been to retry the 61 reviews one at a time after the whole batches failed, instead of quarantining them, a simple code rule would fix it without giving the model control. To give the model adaptive tool use may be more helpful for open-ended tasks where the next step depends on what the model finds, which doesn't really apply for labeling reviews with a fixed set of labels.
+
+---
+
+## Dashboard, backend and database
+
+**URL:** https://spotify-review-dashboard-sigma.vercel.app — public; no account, password or API key needed. Viewing
+it makes **no model calls**: everything shown was computed by the pipeline and stored in the database.
+
+| Layer | What it is | Code |
+|---|---|---|
+| Database | Neon Postgres (project `spotify-review-dashboard`). Tables: `records` (all 660,622 source IDs with labels, status, quarantine reason, cache provenance and issue membership — no review text), `issues`, `rankings` (baseline, business view, paywall sensitivity), `aggregates`, `claims`, `quantities`, `memo_sections`, `evidence` (only the short quotes the memo cites), `run_metrics` | [dashboard/db/schema.sql](dashboard/db/schema.sql) |
+| Loader | Reads only committed files (`grading/`, `outputs/`, `evals/`, `memo.md`) and fills the database | [dashboard/scripts/load.mjs](dashboard/scripts/load.mjs) |
+| Backend | Vercel serverless functions using a **read-only** database role (SELECT only; writes refused): `/api/summary`, `/api/rankings?view=`, `/api/issue?id=`, `/api/review?id=`, `/api/recommendations`, `/api/consistency` | [dashboard/api/](dashboard/api/) |
+| Dashboard | One static page that calls the backend | [dashboard/public/index.html](dashboard/public/index.html) |
+
+**What it shows:** overall metrics (coverage, quarantines, duplicate reuse, cost, run time, verifier and golden
+agreement); the three issue rankings with a drill-down per issue (rule, severity mix, evidence quotes, member review
+IDs); area totals; the **AI-generated recommendation** (the memo role's saved output) with a badge on every number
+explaining which code-computed claim or quantity it is; the evidence reviews it cites; and a lookup for any review ID.
+
+**Checks (run live by `/api/consistency` on every visit, tested 2026-10-10):** a SQL aggregation over the 290,623
+stored complaint/cancellation records reproduces the saved baseline ranking for all 28 issues; 7/7 numbers the
+recommendation cites match the saved ranking; the source checksum and profile match the course manifest. All six API
+routes were tested signed out (HTTP 200).
+
+**Rebuild it yourself:**
+1. Create a Neon Postgres project; put its owner connection string in `dashboard/.env` as `DATABASE_URL_OWNER=...`
+   (`.env` is git-ignored).
+2. `cd dashboard && npm install && npm run load` (about two minutes; loads all 660,622 records).
+3. Run [dashboard/db/readonly_role.sql](dashboard/db/readonly_role.sql) as the owner with your own password.
+4. `vercel link`, then `vercel env add DATABASE_URL production` with the read-only connection string, then
+   `vercel deploy --prod`.
 
 ---
 
