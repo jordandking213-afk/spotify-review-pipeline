@@ -31,7 +31,8 @@ several smaller issues. The issue-level decision rule was set after the full run
 | **Working result (3)** | |
 | Full ingestion, coverage, classification | [grading/ingestion.json](grading/ingestion.json); [course self-check](#course-self-check): all 660,622 IDs accounted for, coverage point 0.9999 |
 | Runnable staged program, bounded calls, saved handoffs, resume | [Commands](#setup-and-commands); [interruption/resume evidence](#interruption-and-resume) |
-| Reproducible baseline ranking, grounded final output | [Ranking](#ranking); `python3 -m pipeline.rerank --grading grading`; [memo](#decision-memo) |
+| Reproducible baseline ranking, grounded final output | [Ranking](#ranking); `python3 -m pipeline.rerank --grading grading` (re-groups and re-ranks with no model); [memo](#decision-memo) |
+| Enriched table, quarantine log, ingestion report, manifest, run record | [outputs/](#outputs) |
 
 ---
 
@@ -47,9 +48,11 @@ several smaller issues. The issue-level decision rule was set after the full run
 | Pending (unclassified) | 0 | same |
 | Exact-text cache reuse | 176,411 rows reused a completed original's labels (`cache_source_id`) | same |
 | Enrichment attempts / failed / invalid-output retry calls | 10,662 / 196 / 965 | [grading/calls.jsonl.gz](grading/) |
+| Tokens (all roles) | 35,431,699 input (18,756,490 served from the provider's prompt cache; 7,048 cache writes); 18,098,814 output; 0 reasoning | [outputs/data_manifest.json](outputs/data_manifest.json) |
 | Verifier agreement (5% sample, 24,416 reviews) | topic 87.2%, intent 94.0%, severity 89.8%, all three 75.7%; mean severity difference 0.11 | [evals/verify_full/summary.json](evals/verify_full/summary.json) |
 | Planted wrong labels caught | 191 of 200 | [evals/verify_full/planted_errors.json](evals/verify_full/planted_errors.json) |
 | API cost (full run) | **$10.94** (enrich $10.57, verify $0.33, group $0.002, memo $0.001) — base estimate was $11.07 | [evals/full_run_summary.json](evals/full_run_summary.json) |
+| Declared spending limit | $45.00, checked in code before every request (counting in-flight reservations) | `pipeline/config.py` |
 | Wall-clock time | 55.5 s before the interruption + 7.7 h after resume (enrich 6.9 h, verify 49 min, group/rank/memo under 1 min) | same |
 | **Total API spend, whole project** | **$11.15** (all smoke tests, pilots, checkpoints, golden, injection, full run, memo regeneration) | `runs/*/state.sqlite` |
 
@@ -103,6 +106,10 @@ The order of steps is fixed in code: ingest > enrich > verify > group > rank > m
 
 I used the model only when it requires reading and understanding messy human language, or writing an argument from numbers that code has already computed. For example, enrichment needs a model because reviews contain slang, typos, mixed languages and sarcasm, there are just too many ways people can describe a problem, but code handles the rest by reading the file, sending each repeated text once and reusing the result for every copy, and copying the exact sentence the model points to so quotes are always exact. Ranking uses no model because it's just simple math and code will do it the same way every time.
 
+### Is adaptive tool use worth it? (Jordan, own words)
+
+I would say the adaptive tool use would not add enough value. A fixed sequence in code is cheaper and easier to cap because every review needs the same steps. Given the full run cost $10.94 against a $11.07 estimate, it was helpful to keep cost in check as the $45 limit could be checked before every request. Giving the model more autonomy could make cost more variable and harder to reproduce and audit. While a helpful step would have been to retry the 61 reviews one at a time after the whole batches failed, instead of quarantining them, a simple code rule would fix it without giving the model control. To give the model adaptive tool use may be more helpful for open-ended tasks where the next step depends on what the model finds, which doesn't really apply for labeling reviews with a fixed set of labels.
+
 ---
 
 ## Labels and schema
@@ -111,6 +118,18 @@ I used the model only when it requires reading and understanding messy human lan
 - Record schema and who produces each field: [labels/record_schema.md](labels/record_schema.md)
 - Prompts (versioned): [prompts/](prompts/) — final: `enrich-v2`, `verify-v1`, `group-v2`, `memo-v4` (earlier versions kept)
 - Pipeline decisions with Jordan's reasoning: [docs/decisions.md](docs/decisions.md)
+
+### Unsupported languages, unclear text and missing evidence
+- **Any language is sent as-is** (no translation). If the model cannot read a review confidently it sets the review
+  flag `unclear_language`, which makes `needs_review = true`; the label is still recorded, never dropped.
+- **Meaningless or unrelated text and bare protest slogans** get intent `unclear`, topic `other`, severity 1 (shared
+  rules); they are excluded from complaint counts.
+- **Missing evidence** (impact not stated, a guessed cause, sarcasm, two equal problems) sets the flags
+  `missing_context`, `speculative`, `sarcasm_or_irony` or `tie_order`; severity uses only what the text states.
+- **Evidence quotes** are always an exact sentence of the review (code copies the segment the model points to).
+- **Empty text** is quarantined as `empty_review_text` and never sent to a model.
+- Full run counts: 120,672 completed reviews (18.3%) have `needs_review = true` — `unclear_language` 71,421,
+  `missing_context` 42,574, `sarcasm_or_irony` 2,665, `tie_order` 2,235, `speculative` 1,777; intent `unclear` 54,865.
 
 ---
 
@@ -171,9 +190,14 @@ nonempty reviews that stayed quarantined (see the failed case below). Coverage p
 
 - Baseline (contract): `priority_score = severity_sum = complaint_count × mean_severity`; descending score, then
   ascending `issue_id`; means to six decimals, half-up. One issue per complaint (`allow_multi_issue: false`).
+- Reviews with several problems: each review gets one primary topic, the problem with the highest supported severity
+  (on a tie, the first one mentioned), so it is counted once, in one issue. Praise, requests and unclear reviews are
+  excluded from complaint counts; complaints and cancellations are included.
 - Business view (additional, labeled): same numbers with `other.general` excluded.
 - Paywall sensitivity (Jordan's decision 1c): named-feature paywall complaints re-scored from 3 to 2.
-- Regenerate from the exported files without a model: `python3 -m pipeline.rerank --grading grading` (exits non-zero if the result differs from `grading/ranking.csv`)
+- Regenerate from the exported files without a model: `python3 -m pipeline.rerank --grading grading`. It rebuilds
+  issue membership from `records.jsonl.gz` with the same code rules, then the ranking, and exits non-zero if either
+  differs from `grading/membership.csv` or `grading/ranking.csv`. Result on the submitted files: both identical.
 - Results (full run; [grading/ranking.csv](grading/ranking.csv), [evals/rank_full/](evals/rank_full/)):
 
 | Baseline rank | Issue | Complaints | Severity sum = priority | Mean severity |
@@ -254,6 +278,22 @@ Facts below are read from the saved files; they are not explanations.
   failure, not a hard review. 61 reviews were quarantined after one retry (their 7 failed retry requests: 4 unparseable, 2 cut off, 1 with an
   invalid item), plus 9 duplicate copies
   of their texts. A future version should retry a failed retry batch one review at a time.
+
+---
+
+## Outputs
+
+| File | Contents |
+|---|---|
+| [outputs/enriched.csv.gz](outputs/) | every source row unchanged (all six original fields) with the labels, status, reason and cache provenance attached |
+| [outputs/quarantine.jsonl](outputs/quarantine.jsonl) | the 83 unresolved records with reason, attempts and original text |
+| [outputs/ingestion_report.json](outputs/ingestion_report.json) | full-file profile, checks against the course manifest (all match), 484,189 distinct texts, final accounting |
+| [outputs/data_manifest.json](outputs/data_manifest.json) | source checksum, code version, prompt hashes, model IDs and settings, run IDs, token and cost totals, spending limit, output checksums |
+| [outputs/run_log.jsonl](outputs/run_log.jsonl), [outputs/run_summary.json](outputs/run_summary.json) | stage timings, call counts and status written by the run |
+| [evals/rank_full/](evals/rank_full/) | aggregates, issue names, business ranking, paywall sensitivity |
+| [grading/](grading/) | the standardized export checked by the course checker |
+
+Regenerate with `python3 -m pipeline.outputs_export --run full --out outputs` (needs the local run database).
 
 ---
 

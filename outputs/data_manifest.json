@@ -1,0 +1,148 @@
+{
+ "run": "full",
+ "runs": [
+  {
+   "run_id": "run-20261004T030139127957Z",
+   "phase": "initial",
+   "client": "gpt-6-luna",
+   "started_at": "2026-10-04T03:01:39.134+00:00",
+   "ended_at": "2026-10-04T03:02:20.779+00:00",
+   "stop_reason": "interrupted",
+   "wall_clock_s": 55.53809345800255
+  },
+  {
+   "run_id": "run-20261004T030243732477Z",
+   "phase": "resume",
+   "client": "gpt-6-luna",
+   "started_at": "2026-10-04T03:02:43.732+00:00",
+   "ended_at": "2026-10-04T09:58:10.663+00:00",
+   "stop_reason": "complete",
+   "wall_clock_s": 24688.30686150001
+  }
+ ],
+ "source": {
+  "file": "spotify_reviews_18months.csv",
+  "sha256": "1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6",
+  "bytes": 97400616,
+  "dataset": "BwandoWando, 3.4 Million Spotify Google Store Reviews v2 (Kaggle, CC0), course extract",
+  "course_manifest_checksums": {
+   "spotify_reviews_18months.csv": "1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6",
+   "checkpoint_500.csv": "a94e31663ee7b7eaa77e23b7a8425b530cc0c866ed5e714953172a0afef6a12f",
+   "golden_50_to_label.csv": "1a125c3e509f58b0246ba16d0ea332675a53ffadb1928be4338a0bd7053a11c7",
+   "analysis_10000.csv": "eaa62ca6d44d717302904a9c922e99b0b4584d174309cb45295ecbc2ba2a91b5",
+   "cost_100.csv": "c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e"
+  }
+ },
+ "code_version_at_export": "a637fa211c65aa69abe91a52b99aba163c7c5911",
+ "configs": {
+  "enrich": "gpt-6-luna|effort=none|enrich-v2|schema-v2|labels-v2",
+  "verify": "gpt-6-luna|effort=none|verify-v1|vschema-v1|labels-v2",
+  "group": "gpt-6-luna|effort=none|group-v2|gschema-v2|issues-v1",
+  "memo": "gpt-6-luna|effort=none|memo-v4|mschema-v4"
+ },
+ "models": [
+  "gpt-6-luna"
+ ],
+ "settings": {
+  "max_reviews_per_request": 50,
+  "retry_batch": 10,
+  "max_output_tokens": 4000,
+  "transient_attempts": 3,
+  "workers": 4,
+  "verify_rate": 0.05,
+  "spend_cap_usd": 45.0,
+  "rates_usd_per_million_tokens": {
+   "input": 0.1,
+   "cached_input": 0.01,
+   "cache_write": 0.125,
+   "output": 0.5,
+   "checked": "2026-10-03"
+  }
+ },
+ "prompt_sha256": {
+  "enrich_v1.schema.json": "9e825c60c81353e083bb7d88882c652c4dad17af4b8884ca6cbdab82ec0af375",
+  "enrich_v1.system.md": "776471defdd75c86ebea03e701f02f088f6b39f7179b35cbf037401621209fb0",
+  "enrich_v2.schema.json": "f5abcd219d015223f2e736bafb362860f6c0b42ff50525e4b0c5d3aa3b968f3d",
+  "enrich_v2.system.md": "ff49a39654fa74dec1d49e5878e3311a6a230406f344e3d59164a3f67aa037c7",
+  "group_v1.schema.json": "48cb8b765475932a331b007d7065cb28d10b4d3d80d9b9a63a27a3aadf541ca0",
+  "group_v1.system.md": "38e22de53ae2da626380f9eb34fe3eb2d74d7e91f6d608c9f91608835965ea22",
+  "group_v2.schema.json": "ab9a0e4a43b460cd7b6b7fced2e5bef1cfe16a0994376267e42f931de78afa50",
+  "group_v2.system.md": "73d9435b7034e28c4088f654dbb7769c8bbdf091d203bdb3fadd2075f6614da1",
+  "memo_v1.schema.json": "0815775c7304baf4775c2485a7da743906fed621e8509dba88451771e673eb41",
+  "memo_v1.system.md": "dd7bfb5e14e52ea3e3e97d8301f6a01fe0d11c49d09bb6065cf73d7ce3a16db5",
+  "memo_v2.schema.json": "de6212872d081689962c342410898921bb0b573f3543a17ed5ab2316c4525eca",
+  "memo_v2.system.md": "7563546e2e1396b423217acbbc32bf80cdbe0f42c1b0db35ef9e950c74c50b4c",
+  "memo_v3.schema.json": "a93861d1ea5da16f4e1c8d9b51e37a0fe70551a193e7a35d345e01f90dc22f05",
+  "memo_v3.system.md": "e46224b819bb70c7b7024445689937f9bc8593a65a1f692fd58b7ec7d4146ecd",
+  "memo_v4.schema.json": "5db9c305950a2fbc24f191c844e6560e2147db53ed5ac7d8122fc75b93892f74",
+  "memo_v4.system.md": "22fed86592b0cf3169f39b79a01e7cb4336faba7af2c392fe96c9516f347daa7",
+  "verify_v1.schema.json": "4dc3233b790b2867d0b1eb7ffeefdea6cab5a52ee1c43f8bf3d181fcbc047e79",
+  "verify_v1.system.md": "84ec441722d8ccf62ab6021d293e30606015405f37e44cb8cb5a8ecef5b2663c"
+ },
+ "usage_totals": {
+  "input_tokens": 35431699,
+  "cached_input_tokens": 18756490,
+  "cache_write_tokens": 7048,
+  "output_tokens": 18098814,
+  "reasoning_tokens": 0
+ },
+ "usage_by_role": {
+  "enrich": {
+   "attempts": 10662,
+   "failed": 196,
+   "input_tokens": 34266703,
+   "cached_input_tokens": 18756490,
+   "cache_write_tokens": 7048,
+   "output_tokens": 17658691,
+   "reasoning_tokens": 0,
+   "cost_usd": 10.599234566666645
+  },
+  "verify": {
+   "attempts": 499,
+   "failed": 2,
+   "input_tokens": 1150378,
+   "cached_input_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 435947,
+   "reasoning_tokens": 0,
+   "cost_usd": 0.33301129999999984
+  },
+  "group": {
+   "attempts": 1,
+   "failed": 0,
+   "input_tokens": 8109,
+   "cached_input_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 3024,
+   "reasoning_tokens": 0,
+   "cost_usd": 0.0023229
+  },
+  "memo": {
+   "attempts": 2,
+   "failed": 0,
+   "input_tokens": 6509,
+   "cached_input_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 1152,
+   "reasoning_tokens": 0,
+   "cost_usd": 0.0012269
+  }
+ },
+ "api_cost_usd": 10.935796,
+ "outputs_sha256": {
+  "outputs/enriched.csv.gz": "cd01909df542a35e0fa6ddeb82ebb9641ecb7998d97310af5d40a631df5e15bd",
+  "outputs/ingestion_report.json": "ddd2bba37f10f2d41c5ed91c92c83da4a7aa11853d338e0a7129972e1d4bce3e",
+  "outputs/quarantine.jsonl": "2655858593f8265dac405306e52ce7a65c5a82f59ca663b804b0bfb2c3c4cac3",
+  "outputs/run_log.jsonl": "e28c47e8d48e57a2c7ae7fed56661de2724c4575b0c10761e5ab40e9b2726775",
+  "outputs/run_summary.json": "3e7a5e1aa90bef8db11742e5f1fd23805f8ebe559db006368801d880529c75c3",
+  "grading/calls.jsonl.gz": "cfbb832bb975c69007ad0c062ab06c977968731b18cdd5f8181dc8483fcea72f",
+  "grading/checkpoint_after.json": "28e7742ef3070ce7669f25e69d2020eeee0dc6d2ecbd721a9b0494ffc830e65d",
+  "grading/checkpoint_before.json": "07e25362da91727c9e1a40bc15f1c80142eb1a560f204eb97c49d45091d629f4",
+  "grading/claims.csv": "9c63e3ea5db1683ab3e03e8fe7ad09084068c7b378ddaf42006415f67513249b",
+  "grading/ingestion.json": "5512dd793b0bde3bd51f28b20b440108f3c9bab31233819bea5f32ce19482153",
+  "grading/membership.csv": "8c0d9dabde109b6da48202057d9da2c5b0758ed8805713c953eff07e6b987f76",
+  "grading/ranking.csv": "698c72a5a57abc309a5e59e71c30d3c83ebf710eeda845027f7665476cec6455",
+  "grading/records.jsonl.gz": "1acbb131130194ff71518b8b56568d7334d6b5b0ce02bb4ef913e5a6fac3a9fc",
+  "grading/run.json": "488597657613c0fe497643a44e08c5f2b1220e4cbe6a32c4ccc574b7c0a0d339"
+ }
+}
