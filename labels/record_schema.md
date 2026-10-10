@@ -1,4 +1,4 @@
-# Record schema and enrichment output — DRAFT v0.2 (schema-v2, prompt enrich-v2; not yet approved)
+# Record schema and enrichment output — FINAL (schema-v2, prompt enrich-v2), approved by Jordan, used for the full run
 
 This file says **who produces each field** (the model, or code) and **what the model is allowed to return**.
 The design goal is that the model makes only the language judgments, while code does everything that can be
